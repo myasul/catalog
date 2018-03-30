@@ -1,0 +1,10 @@
+{% extends "main.html" %}{% block content %}{% include "header.html" %}
+<br>
+<div class="category-item-list-container">
+    {% for item in category_items %}
+    <div class="category-item">
+        <a href="{{url_for('show_category_item',category_id=category_id, item_id=item.id)}}">{{item.name}}</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

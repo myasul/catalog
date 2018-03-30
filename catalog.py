@@ -72,6 +72,72 @@ def delete_category(category_id):
             'delete_category.html', category=category_to_delete)
 
 
+# Show category items
+@app.route('/category/<int:category_id>/items/')
+def show_category_item_list(category_id):
+    category = session.query(Category).filter_by(id=category_id).one()
+    category_items = session.query(Item).filter_by(
+        category_id=category.id, user_id=1).all()
+    return render_template(
+        'category_item_list.html',
+        category_items=category_items,
+        category_id=category_id)
+
+
+# Show a specific item
+@app.route(
+    '/category/<int:category_id>/items/<int:item_id>/',
+    methods=['GET', 'POST'])
+def show_category_item(category_id, item_id):
+    category = session.query(Category).filter_by(id=category_id).one()
+    item = session.query(Item).filter_by(
+        id=item_id, category_id=category_id, user_id=1).one()
+    return render_template(
+        'category_item.html', category_id=category_id, item=item)
+
+
+# Edit category item
+@app.route(
+    '/category/<int:category_id>/items/<int:item_id>/edit/',
+    methods=['GET', 'POST'])
+def edit_category_item(category_id, item_id):
+    category = session.query(Category).filter_by(id=category_id).one()
+    item = session.query(Item).filter_by(
+        id=item_id, category_id=category_id, user_id=1).one()
+    if request.method == 'POST':
+        if request.form['name']:
+            item.name = request.form['name']
+        if request.form['description']:
+            item.description = request.form['description']
+        session.add(item)
+        session.commit()
+        return redirect(
+            url_for(
+                'show_category_item', category_id=category_id,
+                item_id=item.id))
+    else:
+        return render_template(
+            'edit_category_item.html', item=item, category_id=category_id)
+
+
+# Delete category item
+@app.route(
+    '/category/<int:category_id>/items/<int:item_id>/delete/',
+    methods=['GET', 'POST'])
+def delete_category_item(category_id, item_id):
+    category = session.query(Category).filter_by(id=category_id).one()
+    item = session.query(Item).filter_by(
+        id=item_id, category_id=category_id, user_id=1).one()
+    if request.method == 'POST':
+        session.delete(item)
+        session.commit()
+        return redirect(
+            url_for('show_category_item_list', category_id=category_id))
+    else:
+        return render_template(
+            'delete_category_item.html', category_id=category_id, item=item)
+
+
 if __name__ == '__main__':
     app.debug = True
     app.run(host='0.0.0.0', port=5000)
