@@ -1,0 +1,8 @@
+{% extends "main.html" %}{% block content %}{% include "header.html" %}
+<div class="delete-category-container">
+    <p>Are you sure you want to delete {{category.name}}?</p>
+    <form method="post">
+        <button type="submit">Delete</button>
+    </form>
+</div>
+{% endblock %}

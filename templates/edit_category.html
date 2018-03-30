@@ -1,0 +1,8 @@
+{% extends "main.html" %}{% block content %}{% include "header.html" %}
+<div class="edit-category-container">
+    <form method="post">
+        <input type="text" value="{{category.name}}" name="name">
+        <button type="submit">Edit</button>
+    </form>
+</div>
+{% endblock %}
