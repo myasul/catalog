@@ -1,11 +1,11 @@
 {% extends "main.html" %} {% block content %} {% include "header.html" %}
-<div class="edit_category_item_container">
+<div class="edit-category-item-container">
     <h1>{{item.name}}</h1>
     <form method="post">
-        <label for="item_name">Name</label>
-        <input id="item_name" value="{{item.name}}" name="name" type="text"><br><br>
+        <label for="item_name">Name!</label>
+        <input id="item_name" value="{{item.name}}" name="item-name" type="text"><br><br>
         <label for="item_description">Description</label><br>
-        <textarea id="item_description" rows="5" cols="100" name="description">{{item.description}}</textarea><br><br>
+        <textarea id="item_description" rows="5" cols="100" name="item-description">{{item.description}}</textarea><br><br>
         <button type="submit">Edit</button>
     </form>
 </div>

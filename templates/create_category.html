@@ -1,7 +1,7 @@
 {% extends "main.html" %} {% block content %} {% include "header.html" %}
 <div class="create-category-container">
     <form action="{{url_for( 'create_category')}}" method="post">
-        <input type="text" name="name" maxlength="80">
+        <input type="text" name="category-name" maxlength="80">
         <button type="submit">Create</button>
     </form>
 </div>

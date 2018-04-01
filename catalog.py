@@ -28,7 +28,7 @@ session = DBSession()
 @app.route('/categories')
 @app.route('/categories/')
 def show_categories():
-    categories = session.query(Category).order_by(asc(Category.name))
+    categories = get_all_categories()
     return render_template('categories.html', categories=categories)
 
 
@@ -36,7 +36,7 @@ def show_categories():
 @app.route('/categories/create/', methods=['GET', 'POST'])
 def create_category():
     if request.method == 'POST':
-        new_category = Category(name=request.form['name'], user_id=1)
+        new_category = Category(name=request.form['category-name'], user_id=1)
         session.add(new_category)
         session.commit()
         return redirect(url_for('show_categories'))
@@ -45,12 +45,12 @@ def create_category():
 
 
 # Edit a category
-@app.route('/category/<int:category_id>/edit/', methods=['GET', 'POST'])
+@app.route('/categories/<int:category_id>/edit/', methods=['GET', 'POST'])
 def edit_category(category_id):
-    category_to_edit = session.query(Category).filter_by(id=category_id).one()
+    category_to_edit = get_category(category_id)
     if request.method == 'POST':
-        if request.form['name']:
-            category_to_edit.name = request.form['name']
+        if request.form['category-name']:
+            category_to_edit.name = request.form['category-name']
             session.add(category_to_edit)
             session.commit()
             return redirect(url_for('show_categories'))
@@ -59,10 +59,9 @@ def edit_category(category_id):
 
 
 # Delete a category
-@app.route('/category/<int:category_id>/delete/', methods=['GET', 'POST'])
+@app.route('/categories/<int:category_id>/delete/', methods=['GET', 'POST'])
 def delete_category(category_id):
-    category_to_delete = session.query(Category).filter_by(
-        id=category_id).one()
+    category_to_delete = get_category(category_id)
     if request.method == 'POST':
         session.delete(category_to_delete)
         session.commit()
@@ -73,42 +72,56 @@ def delete_category(category_id):
 
 
 # Show category items
-@app.route('/category/<int:category_id>/items/')
+@app.route('/categories/<int:category_id>/items/')
 def show_category_item_list(category_id):
-    category = session.query(Category).filter_by(id=category_id).one()
-    category_items = session.query(Item).filter_by(
-        category_id=category.id, user_id=1).all()
+    all_items = get_all_items(category_id)
     return render_template(
         'category_item_list.html',
-        category_items=category_items,
+        category_items=all_items,
         category_id=category_id)
 
 
 # Show a specific item
 @app.route(
-    '/category/<int:category_id>/items/<int:item_id>/',
+    '/categories/<int:category_id>/items/<int:item_id>/',
     methods=['GET', 'POST'])
 def show_category_item(category_id, item_id):
-    category = session.query(Category).filter_by(id=category_id).one()
-    item = session.query(Item).filter_by(
-        id=item_id, category_id=category_id, user_id=1).one()
+    item = get_item(category_id, item_id)
     return render_template(
         'category_item.html', category_id=category_id, item=item)
 
 
+# Create a specific item
+@app.route(
+    '/categories/<int:category_id>/items/create/', methods=['GET', 'POST'])
+def create_category_item(category_id):
+    if request.method == 'POST':
+        if request.form['item-name'] and request.form['item-description']:
+            new_item = Item(
+                name=request.form['item-name'],
+                description=request.form['item-description'],
+                category_id=category_id,
+                user_id=1)
+            session.add(new_item)
+            session.commit()
+            return redirect(
+                url_for('show_category_item_list', category_id=category_id))
+    else:
+        return render_template(
+            'create_category_item.html', category_id=category_id)
+
+
 # Edit category item
 @app.route(
-    '/category/<int:category_id>/items/<int:item_id>/edit/',
+    '/categories/<int:category_id>/items/<int:item_id>/edit/',
     methods=['GET', 'POST'])
 def edit_category_item(category_id, item_id):
-    category = session.query(Category).filter_by(id=category_id).one()
-    item = session.query(Item).filter_by(
-        id=item_id, category_id=category_id, user_id=1).one()
+    item = get_item(category_id, item_id)
     if request.method == 'POST':
-        if request.form['name']:
-            item.name = request.form['name']
-        if request.form['description']:
-            item.description = request.form['description']
+        if request.form['item-name']:
+            item.name = request.form['item-name']
+        if request.form['item-description']:
+            item.description = request.form['item-description']
         session.add(item)
         session.commit()
         return redirect(
@@ -122,12 +135,10 @@ def edit_category_item(category_id, item_id):
 
 # Delete category item
 @app.route(
-    '/category/<int:category_id>/items/<int:item_id>/delete/',
+    '/categories/<int:category_id>/items/<int:item_id>/delete/',
     methods=['GET', 'POST'])
 def delete_category_item(category_id, item_id):
-    category = session.query(Category).filter_by(id=category_id).one()
-    item = session.query(Item).filter_by(
-        id=item_id, category_id=category_id, user_id=1).one()
+    item = get_item(category_id, item_id)
     if request.method == 'POST':
         session.delete(item)
         session.commit()
@@ -136,6 +147,29 @@ def delete_category_item(category_id, item_id):
     else:
         return render_template(
             'delete_category_item.html', category_id=category_id, item=item)
+
+
+# Helper functions to fetch data from the database
+
+
+def get_item(category_id, item_id):
+    category = session.query(Category).filter_by(id=category_id).one()
+    return session.query(Item).filter_by(
+        id=item_id, category_id=category_id, user_id=1).one()
+
+
+def get_all_items(category_id):
+    category = session.query(Category).filter_by(id=category_id).one()
+    return session.query(Item).filter_by(
+        category_id=category.id, user_id=1).all()
+
+
+def get_category(category_id):
+    return session.query(Category).filter_by(id=category_id).one()
+
+
+def get_all_categories():
+    return session.query(Category).order_by(asc(Category.name))
 
 
 if __name__ == '__main__':
