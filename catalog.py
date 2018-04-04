@@ -4,7 +4,7 @@
 from flask import Flask, render_template, request, redirect, jsonify, url_for
 
 # Imports for CRUD functionality
-from sqlalchemy import create_engine, asc
+from sqlalchemy import create_engine, asc, func, literal_column, select, MetaData
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, User, Category, Item
 
@@ -13,14 +13,47 @@ from oauth2client.client import flow_from_clientsecrets, FlowExchangeError
 from flask import make_response, session as log_session
 import requests
 
+# Imports to implement nested JSON
+import pandas
+import functools
+import json
+
 app = Flask(__name__)
 
 # Connect to the database and create a database session
 engine = create_engine('postgresql:///catalog')
 Base.metadata.bind = engine
+metadata = MetaData(bind=engine)
+metadata.reflect()
+tables = metadata.tables
+category_table = tables['categories']
+item_table = tables['items']
+read = functools.partial(pandas.read_sql, con=engine)
 
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
+
+
+# JSON APIs to view Category information
+# TODO
+@app.route('/api/categories/')
+def show_all_categories_JSON():
+    all_categories = {}
+    frame = get_all_categories()
+    all_categories['Categories'] = frame.to_dict('records')
+    return jsonify(all_categories)
+
+
+@app.route('/api/categories/<int:category_id>/')
+def show_category_items_JSON(category_id):
+    items = get_all_items(category_id)
+    return jsonify(Category_Items=[item.serialize for item in items])
+
+
+@app.route('/api/categories/<int:category_id>/<int:item_id>')
+def show_category_item_JSON():
+    item = get_item(category_id, item_id)
+    return jsonify(Category_Item[item.serialize])
 
 
 # Show all categories
@@ -150,12 +183,14 @@ def delete_category_item(category_id, item_id):
 
 
 # Helper functions to fetch data from the database
-
-
 def get_item(category_id, item_id):
     category = session.query(Category).filter_by(id=category_id).one()
     return session.query(Item).filter_by(
         id=item_id, category_id=category_id, user_id=1).one()
+
+
+def get_category(category_id):
+    return session.query(Category).filter_by(id=category_id).one()
 
 
 def get_all_items(category_id):
@@ -164,12 +199,32 @@ def get_all_items(category_id):
         category_id=category.id, user_id=1).all()
 
 
-def get_category(category_id):
-    return session.query(Category).filter_by(id=category_id).one()
-
-
 def get_all_categories():
-    return session.query(Category).order_by(asc(Category.name))
+
+    # TODO - implement JSON API using session.query
+    #all_items = session.query(Item.category_id,
+    #                          json_agg(Item).label('items')).group_by(
+    #                              Item.category_id).cte(name="all_items")
+    #
+    #all_categories = session.query(Category, all_items).filter(
+    #    Category.id == all_items.c.category_id).cte(name="all_categories")
+    #
+    #all_categories_2 = session.query(all_categories).options(
+    #    Load(all_categories).load_only("id", "name"),
+    #    Load(all_items).defer("category_id"))
+
+    category_items = (select([
+        item_table.c.category_id,
+        json_agg(item_table).label('items')
+    ]).select_from(item_table).group_by(
+        item_table.c.category_id)).cte('category_items')
+    query = (select([category_table.c.name, category_items]).select_from(
+        category_table.join(category_items)))
+    return read(query)
+
+
+def json_agg(table):
+    return func.json_agg(literal_column('"' + table.name + '"'))
 
 
 if __name__ == '__main__':

@@ -23,6 +23,15 @@ class Category(Base):
     user_id = Column(Integer, ForeignKey('users.id'))
     user = relationship(User)
 
+    @property
+    def serialize(self):
+        """Return object data in easily serializeable format"""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'user_id': self.user_id,
+        }
+
 
 class Item(Base):
     __tablename__ = 'items'
@@ -35,6 +44,18 @@ class Item(Base):
     user_id = Column(Integer, ForeignKey('users.id'))
     category = relationship(Category)
     user = relationship(User)
+
+    @property
+    def serialize(self):
+        """Return object data in easily serializeable format"""
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'image': self.image,
+            'category_id': self.category_id,
+            'user_id': self.user_id,
+        }
 
 
 engine = create_engine('postgresql:///catalog')
