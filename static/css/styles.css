@@ -8,11 +8,11 @@ html {
     width: 100%;
     background-color: rgb(5, 11, 94);
     color: white;
+    justify-content: space-between;
 }
 
 .flex {
     display: flex;
-    justify-content: space-between;
     align-items: center;
 }
 
@@ -21,9 +21,26 @@ html {
     height: 100vh;
 }
 
+a {
+    text-decoration: none;
+    color: black;
+}
+
 .category-container {
     max-width: 800px;
     width: 100%;
-    border: 1px solid black;
+    border: 1px solid grey;
     margin: 20px auto 0 auto;
+    padding: 10px;
+    height: 500px;
+}
+
+.categories {
+    border-right: 1px solid grey;
+    margin-right: 10px;
+    padding-right: 10px;
+}
+
+section {
+    height: 100%;
 }

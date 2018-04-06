@@ -97,3 +97,9 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+#python cache
+__pycache__
+
+#auto generated apple files
+.DS_Store

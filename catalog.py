@@ -62,7 +62,9 @@ def show_category_item_JSON():
 @app.route('/categories/')
 def show_categories():
     categories = get_all_categories()
-    return render_template('categories.html', categories=categories)
+    items = get_latest_items()
+    return render_template(
+        'categories.html', categories=categories, items=items)
 
 
 # Create a new category
@@ -183,6 +185,10 @@ def delete_category_item(category_id, item_id):
 
 
 # Helper functions to fetch data from the database
+def get_latest_items(limit=10):
+    return session.query(Item).order_by(Item.date_created.desc()).limit(limit)
+
+
 def get_item(category_id, item_id):
     category = session.query(Category).filter_by(id=category_id).one()
     return session.query(Item).filter_by(
