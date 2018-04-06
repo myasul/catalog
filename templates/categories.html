@@ -1,5 +1,5 @@
 {% extends "main.html" %} {% block content %} {% include "header.html" %}
-<div class="categories-contaner">
+<div class="category-container">
     {% for category in categories %}
     <div class="category">
         <a href="{{url_for('show_category_item_list', category_id=category.id)}}">{{category.name}}</a>

@@ -4,7 +4,7 @@
 from flask import Flask, render_template, request, redirect, jsonify, url_for
 
 # Imports for CRUD functionality
-from sqlalchemy import create_engine, asc, func, literal_column, select, MetaData
+from sqlalchemy import create_engine, asc, func, select, MetaData
 from sqlalchemy.orm import sessionmaker
 from database_setup import Base, User, Category, Item
 
@@ -39,7 +39,7 @@ session = DBSession()
 @app.route('/api/categories/')
 def show_all_categories_JSON():
     all_categories = {}
-    frame = get_all_categories()
+    frame = get_all_categories_JSON()
     all_categories['Categories'] = frame.to_dict('records')
     return jsonify(all_categories)
 
@@ -200,8 +200,14 @@ def get_all_items(category_id):
 
 
 def get_all_categories():
+    return session.query(Category).order_by(asc(Category.name))
 
-    # TODO - implement JSON API using session.query
+
+def get_all_categories_JSON():
+
+    # TODO
+    # - implement JSON API using session.query
+    # - make sure that only selected columns are displayed
     #all_items = session.query(Item.category_id,
     #                          json_agg(Item).label('items')).group_by(
     #                              Item.category_id).cte(name="all_items")
@@ -213,20 +219,20 @@ def get_all_categories():
     #    Load(all_categories).load_only("id", "name"),
     #    Load(all_items).defer("category_id"))
 
-    category_items = (select([
-        item_table.c.category_id,
-        json_agg(item_table).label('items')
-    ]).select_from(item_table).group_by(
-        item_table.c.category_id)).cte('category_items')
-    query = (select([category_table.c.name, category_items]).select_from(
-        category_table.join(category_items)))
+    query = (select([
+        category_table.c.id, category_table.c.name,
+        func.json_agg(
+            func.json_build_object('id', item_table.c.id, 'name',
+                                   item_table.c.name, 'description',
+                                   item_table.c.description, 'image',
+                                   item_table.c.image)).label('items')
+    ]).select_from(category_table.outerjoin(item_table)).group_by(
+        category_table.c.id))
+
     return read(query)
-
-
-def json_agg(table):
-    return func.json_agg(literal_column('"' + table.name + '"'))
 
 
 if __name__ == '__main__':
     app.debug = True
+    app.config['JSON_SORT_KEYS'] = False
     app.run(host='0.0.0.0', port=5000)
