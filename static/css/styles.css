@@ -1,19 +1,30 @@
 body,
 html {
+    font-family: 'Anonymous Pro', monospace;
+    font-size: 16px;
     margin: 0;
     padding: 0;
 }
 
 .top-menu-container {
     width: 100%;
-    background-color: rgb(5, 11, 94);
+    background-color: black;
     color: white;
     justify-content: space-between;
+}
+
+.category-home-link a {
+    color: white !important;
 }
 
 .flex {
     display: flex;
     align-items: center;
+}
+
+.flex-column {
+    display: flex;
+    flex-direction: column;
 }
 
 .category-body-container {
@@ -26,6 +37,29 @@ a {
     color: black;
 }
 
+.category_buttons {
+    margin-top: auto;
+    align-self: flex-start;
+}
+
+.edit_and_delete_buttons {
+    padding-bottom: 8px;
+}
+
+.button {
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid black;
+    background-color: grey;
+    font-size: 1em;
+    font-family: 'Anonymous Pro', monospace;
+}
+
+.button:hover {
+    background-color: black;
+    color: white;
+}
+
 .category-container {
     max-width: 800px;
     width: 100%;
@@ -33,6 +67,7 @@ a {
     margin: 20px auto 0 auto;
     padding: 10px;
     height: 500px;
+    border-radius: 10px;
 }
 
 .categories {
@@ -43,4 +78,12 @@ a {
 
 section {
     height: 100%;
+}
+
+textarea,
+input {
+    font-family: 'Anonymous Pro', monospace;
+    font-size: 1em;
+    outline: none;
+    resize: none;
 }

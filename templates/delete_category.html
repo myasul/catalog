@@ -2,7 +2,8 @@
 <div class="category-container">
     <p>Are you sure you want to delete {{category.name}}?</p>
     <form method="post">
-        <button type="submit">Delete</button>
+        <input class="button" type="submit" value="Delete">
+        <a class="button" href="{{url_for('show_categories')}}">Cancel</a>
     </form>
 </div>
 {% endblock %}

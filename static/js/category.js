@@ -1,11 +1,28 @@
 $(".category").click(function(event) {
     // Would return all of the items of the clicked category 
-    // which will be displayed in the webpage
+    // which will be displayed in the webpage.
+    // This would also add delete and edit button for that category.
+
     $(".category-details-header").html($(this).html());
     category_id = $(this).attr("data-id");
+
+    $(".item").html("");
+    $(".item-per-category").html(request_category_items(category_id));
+    $(".edit_and_delete_buttons").html(add_edit_and_delete_buttons(category_id));
+});
+
+function add_edit_and_delete_buttons(category_id) {
+    edit_category_link = `<a class="button" href="/categories/${category_id}/edit">Edit</a> `;
+    delete_category_link = `<a class="button" href="/categories/${category_id}/delete">Delete</a>`;
+
+    return html_string = `${edit_category_link}${delete_category_link}`;
+}
+
+function request_category_items(category_id) {
     $.ajax({
         type: "GET",
         url: `/api/categories/${category_id}/`,
+        async: false,
         success: function(result) {
             item_list = "";
 
@@ -15,10 +32,7 @@ $(".category").click(function(event) {
                 link = `/categories/${category_id}/items/${item_id}`
                 item_list += `<a href=${link}>${name}</a><br>`;
             });
-
-            $(".item-per-category").html(item_list);
-            $(".item").html("");
         }
-
     });
-});
+    return item_list;
+}
