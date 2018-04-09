@@ -1,4 +1,18 @@
-$(".category").click(function(event) {
+/* Controllers of Login Modal */
+
+$("[data-popup-open]").click(function(event) {
+    targeted_popup_class = $(this).attr("data-popup-open");
+    $(`[data-popup=${targeted_popup_class}`).fadeIn(350);
+    event.preventDefault();
+});
+
+$("[data-popup-close]").click(function(event) {
+    targeted_popup_class = $(this).attr("data-popup-close");
+    $(`[data-popup=${targeted_popup_class}`).fadeOut(350);
+    event.preventDefault();
+});
+
+$(".category").click(function() {
     // Would return all of the items of the clicked category 
     // which will be displayed in the webpage.
     // This would also add delete and edit button for that category.
