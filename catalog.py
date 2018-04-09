@@ -60,11 +60,23 @@ def show_category_item_JSON():
 @app.route('/')
 @app.route('/categories')
 @app.route('/categories/')
-def show_categories():
+@app.route('/categories/<int:category_id>')
+def show_main(category_id=0):
     categories = get_all_categories()
-    items = get_latest_items()
+    category = None
+    items = None
+    category_name = "dummy name"
+    if category_id == 0:
+        items = get_latest_items()
+    else:
+        category = get_category(category_id)
+        category_name = category.name
     return render_template(
-        'categories.html', categories=categories, items=items)
+        'categories.html',
+        categories=categories,
+        items=items,
+        category_id=category_id,
+        category_name=category_name)
 
 
 # Create a new category
@@ -74,7 +86,7 @@ def create_category():
         new_category = Category(name=request.form['category-name'], user_id=1)
         session.add(new_category)
         session.commit()
-        return redirect(url_for('show_categories'))
+        return redirect(url_for('show_main'))
     else:
         return render_template('create_category.html')
 
@@ -88,7 +100,7 @@ def edit_category(category_id):
             category_to_edit.name = request.form['category-name']
             session.add(category_to_edit)
             session.commit()
-            return redirect(url_for('show_categories'))
+            return redirect(url_for('show_main'))
     else:
         return render_template('edit_category.html', category=category_to_edit)
 
@@ -100,7 +112,7 @@ def delete_category(category_id):
     if request.method == 'POST':
         session.delete(category_to_delete)
         session.commit()
-        return redirect(url_for('show_categories'))
+        return redirect(url_for('show_main'))
     else:
         return render_template(
             'delete_category.html', category=category_to_delete)
@@ -184,6 +196,7 @@ def delete_category_item(category_id, item_id):
             'delete_category_item.html', category_id=category_id, item=item)
 
 
+# TODO - Check if you can make a separate file for the helper functions
 # Helper functions to fetch data from the database
 def get_latest_items(limit=10):
     return session.query(Item).order_by(Item.date_created.desc()).limit(limit)

@@ -1,23 +1,23 @@
-{% extends "main.html" %} {% block content %} {% include "header.html" %}
+{% extends "main.html" %} {% block content %} {% include "header.html" %} {% if category_id != 0 %}
+<iframe class="load-category-details" onload="load_items_oncancel()" data-category-name={{category_name}} data-category-id={{category_id}} src="#"></iframe>{% endif %}
 <div class="category-container flex">
-
-    <section class="categories flex-column">
-        <h2><a href="{{url_for('show_categories')}}">Categories</a></h2>
+    <aside class="categories flex-column">
+        <h2><a href="{{url_for('show_main')}}">Categories</a></h2>
         {% for category in categories %}
         <div class="category-list">
             <a class="category" data-id={{category.id}} href="#">{{category.name}}</a>
         </div>
         {% endfor %}
         <a class="category_buttons button" href="{{url_for('create_category')}}">Create</a>
-    </section>
+    </aside>
 
     <section class="category-details flex-column">
         <h2 class="category-details-header">Latest Items</h2>
-        {% for item in items%}
+        {% if category_id == 0 %} {% for item in items%}
         <div class="item">
             <a href="{{url_for('show_category_item', category_id=item.category.id, item_id=item.id)}}">{{item.name}} <i>({{item.category.name}})</i></a>
         </div>
-        {% endfor %}
+        {% endfor %}{% endif %}
         <div class="item-per-category"></div>
         <div class="category_buttons edit_and_delete_buttons"></div>
     </section>

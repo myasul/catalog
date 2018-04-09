@@ -6,11 +6,20 @@ html {
     padding: 0;
 }
 
-.top-menu-container {
+header {
     width: 100%;
     background-color: black;
     color: white;
+    height: 15vh;
+}
+
+.header_container {
+    margin: 0 auto;
+    padding-top: 10px;
+    max-width: 800px;
+    width: 100%;
     justify-content: space-between;
+    flex-wrap: wrap;
 }
 
 .category-home-link a {
@@ -76,7 +85,12 @@ a {
     padding-right: 10px;
 }
 
-section {
+iframe {
+    display: none;
+}
+
+section,
+aside {
     height: 100%;
 }
 

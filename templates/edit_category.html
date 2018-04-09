@@ -5,7 +5,7 @@
         <input type="text" value="{{category.name}}" name="category-name">
         <br><br>
         <input class="button" type="submit" value="Edit">
-        <a class="button" href="{{url_for('show_categories')}}">Cancel</a>
+        <a class="button" href="{{url_for('show_main', category_id=category.id)}}">Cancel</a>
     </form>
 </div>
 {% endblock %}

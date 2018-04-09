@@ -7,9 +7,19 @@ $(".category").click(function(event) {
     category_id = $(this).attr("data-id");
 
     $(".item").html("");
+    display_items_and_buttons(category_id);
+});
+
+function load_items_oncancel() {
+    category_id = $(".load-category-details").attr("data-category-id");
+    $(".category-details-header").html($(".load-category-details").attr("data-category-name"));
+    display_items_and_buttons(category_id);
+}
+
+function display_items_and_buttons(category_id) {
     $(".item-per-category").html(request_category_items(category_id));
     $(".edit_and_delete_buttons").html(add_edit_and_delete_buttons(category_id));
-});
+};
 
 function add_edit_and_delete_buttons(category_id) {
     edit_category_link = `<a class="button" href="/categories/${category_id}/edit">Edit</a> `;
