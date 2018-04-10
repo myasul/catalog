@@ -116,9 +116,6 @@ input {
 
 /* Modal */
 
-
-/* Outer */
-
 .login-popup {
     width: 100%;
     height: 100%;
@@ -129,13 +126,10 @@ input {
     background: rgba(0, 0, 0, 0.75);
 }
 
-
-/* Inner */
-
 .popup-inner {
     max-width: 500px;
     width: 70%;
-    padding: 40px;
+    padding: 0 30px 30px 30px;
     position: absolute;
     top: 30%;
     left: 50%;

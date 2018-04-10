@@ -4,14 +4,17 @@
 <head>
     <meta charset="utf-8">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+
+    <!-- Pre-requisite for Google Hybrid Server Side Flow -->
+    <script src="https://apis.google.com/js/client:platform.js?onload=start" async defer></script>
 </head>
 
 <body>
-    <div class="category-body-container">
+    <div class="category-body-container ">
         {% block content %} {% endblock %}
+        <script src="{{url_for('static',filename='js/jquery.min.js')}}"></script>
+        <script src="{{url_for('static',filename='js/category.js')}}"></script>
     </div>
-    <script src="{{url_for('static',filename='js/jquery.min.js')}}"></script>
-    <script src="{{url_for('static',filename='js/category.js')}}"></script>
 </body>
 
 </html>
