@@ -83,7 +83,6 @@ def gconnect():
 
     # Obtain authorization code
     code = request.data
-    print(code)
 
     try:
         #Upgrade the authorization code into a credentials object
@@ -152,12 +151,33 @@ def gconnect():
     response.headers['Content-type'] = 'application/json'
     return response
 
-    #del login_session['access_token']
-    #del login_session['gplus_id']
-    #del login_session['username']
-    #del login_session['email']
-    #del login_session['image']
-    #del login_session['user_id']
+
+# Logout user
+@app.route('/gdisconnect')
+def gdisconnect():
+    access_token = login_session.get('access_token', '')
+    if access_token is None:
+        response = make_response(json.dumps('Current user not connected'), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    response = requests.post(
+        'https://accounts.google.com/o/oauth2/revoke',
+        params={'token': login_session.get('access_token', '')},
+        headers={'content-type': 'application/x-www-form-urlencoded'})
+    if response.status_code == 200:
+        del login_session['access_token']
+        del login_session['gplus_id']
+        del login_session['username']
+        del login_session['email']
+        del login_session['image']
+        del login_session['user_id']
+        response = make_response(json.dumps('Successfully disconnected'), 200)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+    else:
+        response = make_response(json.dumps('Failed to revoke token'), 400)
+        response.headers['Content-Type'] = 'application/json'
+        return response
 
 
 # Show all categories
@@ -170,6 +190,7 @@ def show_main(category_id=0):
     category = None
     items = None
     category_name = "dummy name"
+
     if category_id == 0:
         items = get_latest_items()
     else:
@@ -180,7 +201,8 @@ def show_main(category_id=0):
         categories=categories,
         items=items,
         category_id=category_id,
-        category_name=category_name)
+        category_name=category_name,
+        logged_in=is_logged_in())
 
 
 # Create a new category
@@ -298,6 +320,13 @@ def delete_category_item(category_id, item_id):
     else:
         return render_template(
             'delete_category_item.html', category_id=category_id, item=item)
+
+
+def is_logged_in():
+    user = login_session.get("username", "")
+    if user:
+        return True
+    return False
 
 
 # TODO - Check if you can make a separate file for the helper functions

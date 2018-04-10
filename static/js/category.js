@@ -1,3 +1,16 @@
+/* Login session */
+$(window).ready(function() {
+    logged_in = $(".category-container").attr("data-logged-in");
+    if (logged_in == 'True') {
+        $(".login > a").html("Logout");
+        $(".login > a").attr("data-popup-open", "logout-popup");
+    } else {
+        $(".login > a").html("Login");
+        $(".login > a").attr("data-popup-open", "login-popup");
+    }
+
+});
+
 /* Controllers of Login Modal */
 
 $("[data-popup-open]").click(function(event) {
@@ -23,6 +36,8 @@ $(".login").click(function() {
         }
     });
 });
+
+var auth2
 
 function start() {
     gapi.load('auth2', function() {
@@ -53,8 +68,9 @@ function signInCallback(authResult) {
             contentType: 'application/octet-stream, charset=utf-8',
             success: function(result) {
                 if (result) {
-                    $(".login-popup").fadeOut(150);
-                    $(".login > a").html("Logout")
+                    $(".login-popup").fadeOut(50);
+                    $(".login > a").html("Logout");
+                    $(".login > a").attr("data-popup-open", "logout-popup");
                 }
             }
         });
@@ -64,6 +80,20 @@ function signInCallback(authResult) {
         console.log("Failed to make a server-side all. Check you configuration and console.");
     }
 }
+
+$(".logout").click(function() {
+    $.ajax({
+        type: "GET",
+        url: "/gdisconnect",
+        success: function(result) {
+            if (result) {
+                $(".logout-popup").fadeOut(150);
+                $(".login > a").html("Login");
+                $(".login > a").attr("data-popup-open", "login-popup");
+            }
+        }
+    });
+})
 
 $(".category").click(function() {
     // Would return all of the items of the clicked category 

@@ -1,6 +1,6 @@
 {% extends "main.html" %} {% block content %} {% include "header.html" %} {% if category_id != 0 %}
 <iframe class="load-category-details" onload="load_items_oncancel()" data-category-name={{category_name}} data-category-id={{category_id}} src="#"></iframe>{% endif %}
-<div class="category-container flex">
+<div class="category-container flex" data-logged-in={{logged_in}}>
     <aside class="categories flex-column">
         <h2><a href="{{url_for('show_main')}}">Categories</a></h2>
         {% for category in categories %}
