@@ -1,5 +1,5 @@
 {% extends "main.html" %} {% block content %} {% include "header.html" %}
-<div class="category-container">
+<div class="category-container" data-logged-in={{logged_in}}>
     <h1>{{item.name}}</h1>
     <form method="post">
         <label for="item_name">Name:</label>

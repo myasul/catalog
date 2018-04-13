@@ -236,7 +236,7 @@ def create_category():
         session.commit()
         return redirect(url_for('show_main'))
     else:
-        return render_template('create_category.html')
+        return render_template('create_category.html', logged_in=True)
 
 
 # Edit a category
@@ -251,7 +251,8 @@ def edit_category(category_id):
             session.commit()
             return redirect(url_for('show_main'))
     else:
-        return render_template('edit_category.html', category=category_to_edit)
+        return render_template(
+            'edit_category.html', category=category_to_edit, logged_in=True)
 
 
 # Delete a category
@@ -265,7 +266,9 @@ def delete_category(category_id):
         return redirect(url_for('show_main'))
     else:
         return render_template(
-            'delete_category.html', category=category_to_delete)
+            'delete_category.html',
+            category=category_to_delete,
+            logged_in=True)
 
 
 # Show category items
@@ -311,11 +314,12 @@ def create_category_item(category_id):
                 user_id=1)
             session.add(new_item)
             session.commit()
-            return redirect(
-                url_for('show_category_item_list', category_id=category_id))
+            return redirect(url_for('show_main', category_id=category_id))
     else:
         return render_template(
-            'create_category_item.html', category_id=category_id)
+            'create_category_item.html',
+            category_id=category_id,
+            logged_in=True)
 
 
 # Edit category item
@@ -338,7 +342,10 @@ def edit_category_item(category_id, item_id):
                 item_id=item.id))
     else:
         return render_template(
-            'edit_category_item.html', item=item, category_id=category_id)
+            'edit_category_item.html',
+            item=item,
+            category_id=category_id,
+            logged_in=True)
 
 
 # Delete category item
@@ -351,11 +358,13 @@ def delete_category_item(category_id, item_id):
     if request.method == 'POST':
         session.delete(item)
         session.commit()
-        return redirect(
-            url_for('show_category_item_list', category_id=category_id))
+        return redirect(url_for('show_main', category_id=category_id))
     else:
         return render_template(
-            'delete_category_item.html', category_id=category_id, item=item)
+            'delete_category_item.html',
+            category_id=category_id,
+            item=item,
+            logged_in=True)
 
 
 def is_logged_in():

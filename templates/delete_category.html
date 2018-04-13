@@ -1,5 +1,5 @@
 {% extends "main.html" %}{% block content %}{% include "header.html" %}
-<div class="category-container">
+<div class="category-container" data-logged-in={{logged_in}}>
     <p>Are you sure you want to delete {{category.name}}?</p>
     <form method="post">
         <input class="button" type="submit" value="Delete">

@@ -2,17 +2,15 @@
 $(window).ready(function() {
     logged_in = $(".category-container").attr("data-logged-in");
     if (logged_in == 'True') {
-        $(".login > a").html("Logout");
-        $(".login > a").attr("data-popup-open", "logout-popup");
+        $(".login").append(`<a class="login-button" data-popup-open="logout-popup">Logout</a>`);
     } else {
-        $(".login > a").html("Login");
-        $(".login > a").attr("data-popup-open", "login-popup");
+        $(".login").append(`<a class="login-button" data-popup-open="login-popup">Login</a>`);
     }
 });
 
 /* Controllers of Login Modal */
 
-$("[data-popup-open]").click(function(event) {
+$(".login").on('click', '[data-popup-open]', function(event) {
     targeted_popup_class = $(this).attr("data-popup-open");
     $(`[data-popup=${targeted_popup_class}]`).fadeIn(350);
     event.preventDefault();
@@ -116,14 +114,14 @@ function load_items_oncancel() {
 
 function display_items_and_buttons(category_id) {
     $(".item-per-category").html(request_category_items(category_id));
-    $(".edit_and_delete_buttons").html(add_edit_and_delete_buttons(category_id));
+    $(".modify_item_buttons").html(modify_item_buttons(category_id));
 };
 
-function add_edit_and_delete_buttons(category_id) {
-    edit_category_link = `<a class="button" href="/categories/${category_id}/edit">Edit</a> `;
+function modify_item_buttons(category_id) {
+    edit_category_link = `<a class="button" href="/categories/${category_id}/edit">Edit</a>`;
     delete_category_link = `<a class="button" href="/categories/${category_id}/delete">Delete</a>`;
-
-    return html_string = `${edit_category_link}${delete_category_link}`;
+    create_item_link = `<a class="button" href="/categories/${category_id}/items/create/">Create Item</a>`;
+    return `${edit_category_link} ${delete_category_link} ${create_item_link}`;
 }
 
 function request_category_items(category_id) {
