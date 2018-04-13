@@ -8,7 +8,6 @@ $(window).ready(function() {
         $(".login > a").html("Login");
         $(".login > a").attr("data-popup-open", "login-popup");
     }
-
 });
 
 /* Controllers of Login Modal */
@@ -71,6 +70,7 @@ function signInCallback(authResult) {
                     $(".login-popup").fadeOut(50);
                     $(".login > a").html("Logout");
                     $(".login > a").attr("data-popup-open", "logout-popup");
+                    window.location.replace("/categories");
                 }
             }
         });
@@ -87,9 +87,10 @@ $(".logout").click(function() {
         url: "/gdisconnect",
         success: function(result) {
             if (result) {
-                $(".logout-popup").fadeOut(150);
+                $(".logout-popup").fadeOut(10);
                 $(".login > a").html("Login");
                 $(".login > a").attr("data-popup-open", "login-popup");
+                window.location.replace("/categories");
             }
         }
     });

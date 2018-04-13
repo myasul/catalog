@@ -1,7 +1,7 @@
 #!usr/bin/env python3
 
 # Imports for Client-Server functionality
-from flask import Flask, render_template, request, redirect, jsonify, url_for
+from flask import Flask, render_template, request, redirect, jsonify, url_for, flash
 
 # Imports for CRUD functionality
 from sqlalchemy import create_engine, asc, func, select, MetaData, exc
@@ -17,7 +17,7 @@ import requests
 
 # Imports to implement nested JSON
 import pandas
-import functools
+from functools import partial, wraps
 import json
 
 app = Flask(__name__)
@@ -33,10 +33,23 @@ metadata.reflect()
 tables = metadata.tables
 category_table = tables['categories']
 item_table = tables['items']
-read = functools.partial(pandas.read_sql, con=engine)
+read = partial(pandas.read_sql, con=engine)
 
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
+
+
+# TODO - Read more about decorator and try to abstract this code to make it
+# look cleaner.
+# Decorator for anonymous users trying to access restricted pages
+def login_required(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if is_logged_in():
+            return f(*args, **kwargs)
+        return redirect(url_for('show_main'))
+
+    return wrap
 
 
 # JSON APIs to view Category information
@@ -196,6 +209,14 @@ def show_main(category_id=0):
     else:
         category = get_category(category_id)
         category_name = category.name
+    if login_session.get('username') is None:
+        return render_template(
+            'categories_anonymous.html',
+            categories=categories,
+            items=items,
+            category_id=category_id,
+            category_name=category_name,
+            logged_in=is_logged_in())
     return render_template(
         'categories.html',
         categories=categories,
@@ -207,6 +228,7 @@ def show_main(category_id=0):
 
 # Create a new category
 @app.route('/categories/create/', methods=['GET', 'POST'])
+@login_required
 def create_category():
     if request.method == 'POST':
         new_category = Category(name=request.form['category-name'], user_id=1)
@@ -219,6 +241,7 @@ def create_category():
 
 # Edit a category
 @app.route('/categories/<int:category_id>/edit/', methods=['GET', 'POST'])
+@login_required
 def edit_category(category_id):
     category_to_edit = get_category(category_id)
     if request.method == 'POST':
@@ -233,6 +256,7 @@ def edit_category(category_id):
 
 # Delete a category
 @app.route('/categories/<int:category_id>/delete/', methods=['GET', 'POST'])
+@login_required
 def delete_category(category_id):
     category_to_delete = get_category(category_id)
     if request.method == 'POST':
@@ -260,13 +284,23 @@ def show_category_item_list(category_id):
     methods=['GET', 'POST'])
 def show_category_item(category_id, item_id):
     item = get_item(category_id, item_id)
+    if login_session.get('username') is None:
+        return render_template(
+            'category_item_anonymous.html',
+            category_id=category_id,
+            item=item,
+            logged_in=is_logged_in())
     return render_template(
-        'category_item.html', category_id=category_id, item=item)
+        'category_item.html',
+        category_id=category_id,
+        item=item,
+        logged_in=is_logged_in())
 
 
 # Create a specific item
 @app.route(
     '/categories/<int:category_id>/items/create/', methods=['GET', 'POST'])
+@login_required
 def create_category_item(category_id):
     if request.method == 'POST':
         if request.form['item-name'] and request.form['item-description']:
@@ -288,6 +322,7 @@ def create_category_item(category_id):
 @app.route(
     '/categories/<int:category_id>/items/<int:item_id>/edit/',
     methods=['GET', 'POST'])
+@login_required
 def edit_category_item(category_id, item_id):
     item = get_item(category_id, item_id)
     if request.method == 'POST':
@@ -310,6 +345,7 @@ def edit_category_item(category_id, item_id):
 @app.route(
     '/categories/<int:category_id>/items/<int:item_id>/delete/',
     methods=['GET', 'POST'])
+@login_required
 def delete_category_item(category_id, item_id):
     item = get_item(category_id, item_id)
     if request.method == 'POST':
