@@ -2,9 +2,9 @@
 $(window).ready(function() {
     logged_in = $(".category-container").attr("data-logged-in");
     if (logged_in == 'True') {
-        $(".login").append(`<a class="login-button" data-popup-open="logout-popup">Logout</a>`);
+        $(".login").append(`<a data-popup-open="logout-popup">Logout</a>`);
     } else {
-        $(".login").append(`<a class="login-button" data-popup-open="login-popup">Login</a>`);
+        $(".login").append(`<a data-popup-open="login-popup">Login</a>`);
     }
 });
 
@@ -12,6 +12,30 @@ $(window).ready(function() {
 
 $(".login").on('click', '[data-popup-open]', function(event) {
     targeted_popup_class = $(this).attr("data-popup-open");
+    $(`[data-popup=${targeted_popup_class}]`).fadeIn(350);
+    event.preventDefault();
+});
+
+/* Controller of Delete Modal */
+$(".category-container").on('click', '[data-popup-open]', function(event) {
+    targeted_popup_class = $(this).attr("data-popup-open");
+    category_id = $(this).attr("data-category-id");
+    item_id = $(this).attr("data-item-id");
+    data_type = $(this).attr("data-type");
+
+    error_msg = "Are you sure you want to delete this item?";
+    if (data_type == "category") {
+        error_msg = "<p>Are you sure you want to delete this category?</p>";
+        item_count = request_item_count(category_id);
+        if (item_count > 0) {
+            error_msg += "<p>There are still items in this category. Deleting this category would delete the items as well.</p>"
+        }
+    }
+
+    $(".delete-message").html(error_msg);
+    $(".delete").attr("data-category-id", category_id);
+    $(".delete").attr("data-item-id", item_id);
+    $(".delete").attr("data-type", data_type);
     $(`[data-popup=${targeted_popup_class}]`).fadeIn(350);
     event.preventDefault();
 });
@@ -94,6 +118,28 @@ $(".logout").click(function() {
     });
 })
 
+$(".delete").click(function() {
+    type = $(this).attr("data-type");
+    category_id = $(this).attr("data-category-id");
+    item_id = $(this).attr("data-item-id");
+
+    url = `/categories/${category_id}/items/${item_id}/delete/`;
+    url_redirect = `/categories/${category_id}`;
+    if (type == "category") {
+        url = `/categories/${category_id}/delete/`;
+        url_redirect = "/categories";
+    }
+
+    $.ajax({
+        type: "POST",
+        url: url,
+        success: function(result) {
+            $(".delete-popup").fadeOut(10);
+            window.location.replace(url_redirect);
+        }
+    });
+})
+
 $(".category").click(function() {
     // Would return all of the items of the clicked category 
     // which will be displayed in the webpage.
@@ -124,7 +170,7 @@ function display_items_and_buttons(category_id) {
 
 function modify_item_buttons(category_id) {
     edit_category_link = `<a class="button" href="/categories/${category_id}/edit">Edit</a>`;
-    delete_category_link = `<a class="button" href="/categories/${category_id}/delete">Delete</a>`;
+    delete_category_link = `<a class="button" data-category-id="${category_id}" data-popup-open="delete-popup" data-type="category">Delete</a>`;
     create_item_link = `<a class="button" href="/categories/${category_id}/items/create/">Create Item</a>`;
     return `${edit_category_link} ${delete_category_link} ${create_item_link}`;
 }
@@ -160,4 +206,16 @@ function request_category_items(category_id) {
         }
     });
     return item_list;
+};
+
+function request_item_count(category_id) {
+    $.ajax({
+        type: "GET",
+        url: `/api/categories/item_count/${category_id}`,
+        async: false,
+        success: function(result) {
+            item_count = result;
+        }
+    });
+    return item_count;
 };

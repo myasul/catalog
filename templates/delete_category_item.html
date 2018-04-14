@@ -1,9 +1,0 @@
-{% extends "main.html" %} {% block content %} {% include "header.html" %}
-<div class="category-container" data-logged-in={{logged_in}}>
-    <p>Are you sure you want to delete {{item.name}}?</p>
-    <form method="post">
-        <input class="button" type="submit" value="Delete">
-        <a class="button" href="{{url_for('show_category_item', category_id=category_id, item_id=item.id)}}">Cancel</a>
-    </form>
-</div>
-{% include "footer.html" %}{% endblock %}

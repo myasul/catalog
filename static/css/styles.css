@@ -124,7 +124,8 @@ input {
 /* Modal */
 
 .login-popup,
-.logout-popup {
+.logout-popup,
+.delete-popup {
     width: 100%;
     height: 100%;
     display: none;

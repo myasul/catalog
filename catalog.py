@@ -79,6 +79,11 @@ def show_authorization(category_id):
     return jsonify(is_authorized(category_id))
 
 
+@app.route('/api/categories/item_count/<int:category_id>')
+def show_item_count(category_id):
+    return jsonify(get_item_count(category_id))
+
+
 # Create anti-forgery token
 @app.route("/login")
 def generate_token():
@@ -268,6 +273,13 @@ def edit_category(category_id):
 def delete_category(category_id):
     category_to_delete = get_category(category_id)
     if request.method == 'POST':
+        # Delete items under category first
+        if get_item_count(category_id) > 0:
+            items = get_all_items(category_id)
+            for item in items:
+                session.delete(item)
+            session.commit()
+
         session.delete(category_to_delete)
         session.commit()
         return redirect(url_for('show_main'))
@@ -401,6 +413,15 @@ def get_category(category_id):
 def get_all_items(category_id):
     category = session.query(Category).filter_by(id=category_id).one()
     return session.query(Item).filter_by(category_id=category.id).all()
+
+
+def get_item_count(category_id):
+    try:
+        count = session.query(func.count(
+            Item.id).label('count')).filter_by(category_id=category_id).one()
+        return count[0]
+    except exc.SQLAlchemyError:
+        return 0
 
 
 def get_all_categories():
