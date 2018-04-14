@@ -35,6 +35,7 @@ header {
 .login a:hover {
     color: black !important;
     background-color: white;
+    cursor: pointer;
 }
 
 .flex {
@@ -55,6 +56,10 @@ header {
 a {
     text-decoration: none;
     color: black;
+}
+
+a:hover {
+    cursor: pointer;
 }
 
 .category_buttons {

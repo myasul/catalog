@@ -114,7 +114,12 @@ function load_items_oncancel() {
 
 function display_items_and_buttons(category_id) {
     $(".item-per-category").html(request_category_items(category_id));
-    $(".modify_item_buttons").html(modify_item_buttons(category_id));
+    if (is_authorized(category_id)) {
+        $(".category-details").append(`<div class="category_buttons modify_item_buttons"></div>`);
+        $(".modify_item_buttons").html(modify_item_buttons(category_id));
+    } else {
+        $(".modify_item_buttons").remove();
+    }
 };
 
 function modify_item_buttons(category_id) {
@@ -124,10 +129,24 @@ function modify_item_buttons(category_id) {
     return `${edit_category_link} ${delete_category_link} ${create_item_link}`;
 }
 
+function is_authorized(category_id) {
+    authorized = false;
+    $.ajax({
+        type: "GET",
+        url: `/api/categories/authorized/${category_id}`,
+        async: false,
+        success: function(result) {
+            console.log(result)
+            authorized = result;
+        }
+    });
+    return authorized;
+}
+
 function request_category_items(category_id) {
     $.ajax({
         type: "GET",
-        url: `/api/categories/${category_id}/`,
+        url: `/api/categories/${category_id}`,
         async: false,
         success: function(result) {
             item_list = "";
@@ -141,4 +160,4 @@ function request_category_items(category_id) {
         }
     });
     return item_list;
-}
+};

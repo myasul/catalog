@@ -54,7 +54,7 @@ def login_required(f):
 
 # JSON APIs to view Category information
 # TODO
-@app.route('/api/categories/')
+@app.route('/api/categories')
 def show_all_categories_JSON():
     all_categories = {}
     frame = get_all_categories_JSON()
@@ -62,7 +62,7 @@ def show_all_categories_JSON():
     return jsonify(all_categories)
 
 
-@app.route('/api/categories/<int:category_id>/')
+@app.route('/api/categories/<int:category_id>')
 def show_category_items_JSON(category_id):
     items = get_all_items(category_id)
     return jsonify(Category_Items=[item.serialize for item in items])
@@ -72,6 +72,11 @@ def show_category_items_JSON(category_id):
 def show_category_item_JSON():
     item = get_item(category_id, item_id)
     return jsonify(Category_Item[item.serialize])
+
+
+@app.route('/api/categories/authorized/<int:category_id>')
+def show_authorization(category_id):
+    return jsonify(is_authorized(category_id))
 
 
 # Create anti-forgery token
@@ -231,7 +236,9 @@ def show_main(category_id=0):
 @login_required
 def create_category():
     if request.method == 'POST':
-        new_category = Category(name=request.form['category-name'], user_id=1)
+        user_id = get_userid(login_session['email'])
+        new_category = Category(
+            name=request.form['category-name'], user_id=user_id)
         session.add(new_category)
         session.commit()
         return redirect(url_for('show_main'))
@@ -287,7 +294,7 @@ def show_category_item_list(category_id):
     methods=['GET', 'POST'])
 def show_category_item(category_id, item_id):
     item = get_item(category_id, item_id)
-    if login_session.get('username') is None:
+    if login_session.get('username') is None or not is_authorized(category_id):
         return render_template(
             'category_item_anonymous.html',
             category_id=category_id,
@@ -306,12 +313,13 @@ def show_category_item(category_id, item_id):
 @login_required
 def create_category_item(category_id):
     if request.method == 'POST':
+        user_id = get_userid(login_session['email'])
         if request.form['item-name'] and request.form['item-description']:
             new_item = Item(
                 name=request.form['item-name'],
                 description=request.form['item-description'],
                 category_id=category_id,
-                user_id=1)
+                user_id=user_id)
             session.add(new_item)
             session.commit()
             return redirect(url_for('show_main', category_id=category_id))
@@ -383,7 +391,7 @@ def get_latest_items(limit=10):
 def get_item(category_id, item_id):
     category = session.query(Category).filter_by(id=category_id).one()
     return session.query(Item).filter_by(
-        id=item_id, category_id=category_id, user_id=1).one()
+        id=item_id, category_id=category_id).one()
 
 
 def get_category(category_id):
@@ -392,8 +400,7 @@ def get_category(category_id):
 
 def get_all_items(category_id):
     category = session.query(Category).filter_by(id=category_id).one()
-    return session.query(Item).filter_by(
-        category_id=category.id, user_id=1).all()
+    return session.query(Item).filter_by(category_id=category.id).all()
 
 
 def get_all_categories():
@@ -446,6 +453,12 @@ def get_userid(email):
         return user.id
     except exc.SQLAlchemyError:
         return None
+
+
+def is_authorized(category_id):
+    category = get_category(category_id)
+    logged_in_user_id = get_userid(login_session.get('email'))
+    return category.user_id == logged_in_user_id
 
 
 if __name__ == '__main__':
