@@ -95,6 +95,14 @@ textarea {
     width: 100%;
 }
 
+select {
+    -webkit-font-family: 'Anonymous Pro', monospace;
+    font-family: 'Anonymous Pro', monospace;
+    -webkit-font-size: 1em;
+    font-size: 1em;
+    outline: none;
+}
+
 .category-container {
     max-width: 800px;
     width: 100%;

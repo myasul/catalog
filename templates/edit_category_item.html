@@ -7,6 +7,12 @@
             <input id="item_name" value="{{item.name}}" name="item-name" type="text"><br><br>
             <label for="item_description">Description:</label><br><br>
             <textarea id="item_description" rows="5" name="item-description">{{item.description}}</textarea><br><br>
+            <label for="item-category">Category List:</label>
+            <select name="item-category" id="item-category">
+                {% for category in categories %}
+                <option {% if category_id == category.id%}selected{% endif %} value="{{category.id}}">{{category.name}}</option>
+                {% endfor %}
+            </select><br><br>
             <input class="button" type="submit" value="Edit">
             <a class="button" href="{{url_for('show_category_item', category_id=category_id, item_id=item.id)}}">Cancel</a>
         </form>

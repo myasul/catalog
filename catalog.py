@@ -327,6 +327,7 @@ def show_category_item(category_id, item_id):
     '/categories/<int:category_id>/items/create/', methods=['GET', 'POST'])
 @login_required
 def create_category_item(category_id):
+    category = get_category(category_id)
     if request.method == 'POST':
         user_id = get_userid(login_session['email'])
         if request.form['item-name'] and request.form['item-description']:
@@ -340,9 +341,7 @@ def create_category_item(category_id):
             return redirect(url_for('show_main', category_id=category_id))
     else:
         return render_template(
-            'create_category_item.html',
-            category_id=category_id,
-            logged_in=True)
+            'create_category_item.html', category=category, logged_in=True)
 
 
 # Edit category item
@@ -352,22 +351,27 @@ def create_category_item(category_id):
 @login_required
 def edit_category_item(category_id, item_id):
     item = get_item(category_id, item_id)
+    categories = get_all_categories()
     if request.method == 'POST':
         if request.form['item-name']:
             item.name = request.form['item-name']
         if request.form['item-description']:
             item.description = request.form['item-description']
+        if request.form['item-category']:
+            item.category_id = request.form['item-category']
         session.add(item)
         session.commit()
         return redirect(
             url_for(
-                'show_category_item', category_id=category_id,
+                'show_category_item',
+                category_id=item.category_id,
                 item_id=item.id))
     else:
         return render_template(
             'edit_category_item.html',
             item=item,
             category_id=category_id,
+            categories=categories,
             logged_in=True)
 
 
@@ -400,22 +404,35 @@ def is_logged_in():
 # TODO - Check if you can make a separate file for the helper functions
 # Helper functions to fetch data from the database
 def get_latest_items(limit=10):
-    return session.query(Item).order_by(Item.date_created.desc()).limit(limit)
+    try:
+        return session.query(Item).order_by(
+            Item.date_created.desc()).limit(limit)
+    except exc.SQLAlchemyError:
+        return None
 
 
 def get_item(category_id, item_id):
-    category = session.query(Category).filter_by(id=category_id).one()
-    return session.query(Item).filter_by(
-        id=item_id, category_id=category_id).one()
+    try:
+        category = session.query(Category).filter_by(id=category_id).one()
+        return session.query(Item).filter_by(
+            id=item_id, category_id=category_id).one()
+    except exc.SQLAlchemyError:
+        return None
 
 
 def get_category(category_id):
-    return session.query(Category).filter_by(id=category_id).one()
+    try:
+        return session.query(Category).filter_by(id=category_id).one()
+    except exc.SQLAlchemyError:
+        return None
 
 
 def get_all_items(category_id):
-    category = session.query(Category).filter_by(id=category_id).one()
-    return session.query(Item).filter_by(category_id=category.id).all()
+    try:
+        category = session.query(Category).filter_by(id=category_id).one()
+        return session.query(Item).filter_by(category_id=category.id).all()
+    except exc.SQLAlchemyError:
+        return None
 
 
 def get_item_count(category_id):
@@ -461,14 +478,18 @@ def get_all_categories_JSON():
 
 
 def create_user(login_session):
-    new_user = User(
-        name=login_session['username'],
-        email=login_session['email'],
-        image=login_session['image'])
-    session.add(new_user)
-    session.commit()
-    user = session.query(User).filter_by(email=login_session['email']).one()
-    return user.id
+    try:
+        new_user = User(
+            name=login_session['username'],
+            email=login_session['email'],
+            image=login_session['image'])
+        session.add(new_user)
+        session.commit()
+        user = session.query(User).filter_by(
+            email=login_session['email']).one()
+        return user.id
+    except exc.SQLAlchemyError:
+        return None
 
 
 def get_userid(email):

@@ -10,7 +10,11 @@
     </aside>
 
     <section class="category-details flex-column">
+        {% if show_latest_items%}
         <h2 class="category-details-header">Latest Items</h2>
+        {% else %}
+        <h2 class="category-details-header"></h2>
+        {% endif %}
         <div class="latest-item-list flex-column">
             {% if category_id == 0 %} {% for item in items%}
             <a href="{{url_for('show_category_item', category_id=item.category.id, item_id=item.id)}}">{{item.name}} <i>({{item.category.name}})</i></a> {% endfor %}{% endif %}
