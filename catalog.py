@@ -213,12 +213,14 @@ def show_main(category_id=0):
     category = None
     items = None
     category_name = "dummy name"
+    show_latest_items = True
 
     if category_id == 0:
         items = get_latest_items()
     else:
         category = get_category(category_id)
         category_name = category.name
+        show_latest_items = False
     if login_session.get('username') is None:
         return render_template(
             'categories_anonymous.html',
@@ -233,7 +235,8 @@ def show_main(category_id=0):
         items=items,
         category_id=category_id,
         category_name=category_name,
-        logged_in=is_logged_in())
+        logged_in=is_logged_in(),
+        show_latest_items=show_latest_items)
 
 
 # Create a new category

@@ -1,11 +1,13 @@
 {% extends "main.html" %} {% block content %} {% include "header.html" %}
 <div class="category-container" data-logged-in={{logged_in}}>
-    <h2>Category</h2>
-    <form action="{{url_for( 'create_category')}}" method="post">
-        <input type="text" name="category-name" maxlength="80">
-        <br><br>
-        <input class="button" type="submit" value="Create">
-        <a class="button" href="{{url_for('show_main')}}">Cancel</a>
-    </form>
+    <section class="item-details">
+        <h2>Create Category</h2>
+        <form action="{{url_for( 'create_category')}}" method="post">
+            <input type="text" name="category-name" maxlength="80">
+            <br><br>
+            <input class="button" type="submit" value="Create">
+            <a class="button" href="{{url_for('show_main')}}">Cancel</a>
+        </form>
+    </section>
 </div>
 {% include "footer.html" %}{% endblock %}

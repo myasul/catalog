@@ -3,9 +3,11 @@
     <div class="login-popup" data-popup="login-popup" data-token="">
         <div class="popup-inner">
             <h2>LOG IN</h2>
-            <p>Log in using one of these services</p>
+            <p class="login-message">Log in using one of these services</p>
             <br>
-            <a id="signinButton" class="button">Google</a>
+            <a id="signinButton" class="button">
+                <span class="g-signin" data-scope="openid email profile" data-clientid="1023941705843-jhhhoait4klmlqamos53j3gd6q4dtito.apps.googleusercontent.com" data-redirecturi="postmessage" data-accesstype="offline" data-cookiepolicy="single_host_origin" data-callback="signInCallback"
+                    data-approvalprompt="force">Google</span></a>
             <a class="button popup-close " data-popup-close="login-popup">Cancel</a>
         </div>
     </div>
@@ -13,7 +15,7 @@
     <div class="logout-popup" data-popup="logout-popup">
         <div class="popup-inner">
             <h2>LOG OUT</h2>
-            <p>Are you sure you want to log out?</p>
+            <p class="login-message">Are you sure you want to log out?</p>
             <br>
             <a class="button logout">Yes</a>
             <a class="button popup-close" data-popup-close="logout-popup">Cancel</a>

@@ -3,20 +3,18 @@
 <div class="category-container flex" data-logged-in={{logged_in}}>
     <aside class="categories flex-column">
         <h2><a href="{{url_for('show_main')}}">Categories</a></h2>
-        {% for category in categories %}
-        <div class="category-list">
-            <a class="category" data-id={{category.id}} href="#">{{category.name}}</a>
+        <div class="category-list flex-column">
+            {% for category in categories %}
+            <a class="category" data-id={{category.id}} href="#">{{category.name}}</a> {% endfor %}
         </div>
-        {% endfor %}
     </aside>
 
     <section class="category-details flex-column">
         <h2 class="category-details-header">Latest Items</h2>
-        {% if category_id == 0 %} {% for item in items%}
-        <div class="item">
-            <a href="{{url_for('show_category_item', category_id=item.category.id, item_id=item.id)}}">{{item.name}} <i>({{item.category.name}})</i></a>
+        <div class="latest-item-list flex-column">
+            {% if category_id == 0 %} {% for item in items%}
+            <a href="{{url_for('show_category_item', category_id=item.category.id, item_id=item.id)}}">{{item.name}} <i>({{item.category.name}})</i></a> {% endfor %}{% endif %}
         </div>
-        {% endfor %}{% endif %}
         <div class="item-per-category"></div>
     </section>
 

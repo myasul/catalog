@@ -1,13 +1,15 @@
 {% extends "main.html" %} {% block content %} {% include "header.html" %}
-<br><br>
 <div class="category-container" data-logged-in={{logged_in}}>
-    <form method="post" action="{{url_for('create_category_item', category_id=category_id)}}">
-        <label for="item-name">Name</label>
-        <input type="text" id="item-name" name="item-name"><br><br>
-        <label for="item-description">Description</label><br>
-        <textarea rows="5" cols="75" name="item-description" id="item-description"></textarea><br><br>
-        <input class="button" type="submit" value="Create">
-        <a class="button" href="{{url_for('show_main', category_id=category_id)}}">Cancel</a>
-    </form>
+    <section class="item-details">
+        <h2>Create Category Item</h2>
+        <form method="post" action="{{url_for('create_category_item', category_id=category_id)}}">
+            <label for="item-name">Name</label>
+            <input type="text" id="item-name" name="item-name"><br><br>
+            <label for="item-description">Description</label><br>
+            <textarea rows="5" cols="72" name="item-description" id="item-description"></textarea><br><br>
+            <input class="button" type="submit" value="Create">
+            <a class="button" href="{{url_for('show_main', category_id=category_id)}}">Cancel</a>
+        </form>
+    </section>
 </div>
 {% include "footer.html" %}{% endblock %}

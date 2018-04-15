@@ -58,26 +58,12 @@ $(".login").click(function() {
     });
 });
 
-var auth2
-
-function start() {
-    gapi.load('auth2', function() {
-        auth2 = gapi.auth2.init({
-            client_id: "1023941705843-jhhhoait4klmlqamos53j3gd6q4dtito.apps.googleusercontent.com",
-        });
-    });
-}
-
-$("#signinButton").click(function(event) {
-    auth2.grantOfflineAccess().then(signInCallback);
-    event.preventDefault();
-});
-
 function signInCallback(authResult) {
     if (authResult["code"]) {
 
         // Hide the sign-in button now the user has been authorized.
-        //$("#signinButton").attr("style", "display: none");
+        $(".login-popup a").attr("style", "display: none");
+        $(".login-message").html("Please wait while the system logs you in.")
         state = $(".login-popup").attr("data-token");
 
         // Send the one-time-use code and handle accordingly
@@ -109,6 +95,8 @@ $(".logout").click(function() {
         url: "/gdisconnect",
         success: function(result) {
             if (result) {
+                $(".login-popup a").attr("style", "display: none");
+                $(".login-message").html("Please wait while the system logs you out.")
                 $(".logout-popup").fadeOut(10);
                 $(".login > a").html("Login");
                 $(".login > a").attr("data-popup-open", "login-popup");
@@ -148,7 +136,7 @@ $(".category").click(function() {
     $(".category-details-header").html($(this).html());
     category_id = $(this).attr("data-id");
 
-    $(".item").html("");
+    $(".latest-item-list").empty();
     display_items_and_buttons(category_id);
 });
 
@@ -160,11 +148,12 @@ function load_items_oncancel() {
 
 function display_items_and_buttons(category_id) {
     $(".item-per-category").html(request_category_items(category_id));
-    if (is_authorized(category_id)) {
-        $(".category-details").append(`<div class="category_buttons modify_item_buttons"></div>`);
+    if (is_authorized(category_id) && !$(".modify_item_buttons").html().length) {
         $(".modify_item_buttons").html(modify_item_buttons(category_id));
+    } else if (!is_authorized(category_id)) {
+        $(".modify_item_buttons").empty();
     } else {
-        $(".modify_item_buttons").remove();
+        //do nothing
     }
 };
 
