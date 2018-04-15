@@ -293,16 +293,6 @@ def delete_category(category_id):
             logged_in=True)
 
 
-# Show category items
-@app.route('/categories/<int:category_id>/items/')
-def show_category_item_list(category_id):
-    all_items = get_all_items(category_id)
-    return render_template(
-        'category_item_list.html',
-        category_items=all_items,
-        category_id=category_id)
-
-
 # Show a specific item
 @app.route(
     '/categories/<int:category_id>/items/<int:item_id>/',
