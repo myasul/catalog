@@ -70,13 +70,13 @@ def show_category_items_JSON(category_id):
 
 @app.route('/api/categories/<int:category_id>/<int:item_id>')
 def show_category_item_JSON():
-    item = get_item(category_id, item_id)
+    item = get_item(item_id)
     return jsonify(Category_Item[item.serialize])
 
 
 @app.route('/api/categories/authorized/<int:category_id>')
 def show_authorization(category_id):
-    return jsonify(is_authorized(category_id))
+    return jsonify(is_authorized_to_modify_category(category_id))
 
 
 @app.route('/api/categories/item_count/<int:category_id>')
@@ -308,8 +308,9 @@ def show_category_item_list(category_id):
     '/categories/<int:category_id>/items/<int:item_id>/',
     methods=['GET', 'POST'])
 def show_category_item(category_id, item_id):
-    item = get_item(category_id, item_id)
-    if login_session.get('username') is None or not is_authorized(category_id):
+    item = get_item(item_id)
+    if login_session.get(
+            'username') is None or not is_authorized_to_modify_item(item.id):
         return render_template(
             'category_item_anonymous.html',
             category_id=category_id,
@@ -350,7 +351,7 @@ def create_category_item(category_id):
     methods=['GET', 'POST'])
 @login_required
 def edit_category_item(category_id, item_id):
-    item = get_item(category_id, item_id)
+    item = get_item(item_id)
     categories = get_all_categories()
     if request.method == 'POST':
         if request.form['item-name']:
@@ -381,7 +382,7 @@ def edit_category_item(category_id, item_id):
     methods=['GET', 'POST'])
 @login_required
 def delete_category_item(category_id, item_id):
-    item = get_item(category_id, item_id)
+    item = get_item(item_id)
     if request.method == 'POST':
         session.delete(item)
         session.commit()
@@ -411,11 +412,9 @@ def get_latest_items(limit=10):
         return None
 
 
-def get_item(category_id, item_id):
+def get_item(item_id):
     try:
-        category = session.query(Category).filter_by(id=category_id).one()
-        return session.query(Item).filter_by(
-            id=item_id, category_id=category_id).one()
+        return session.query(Item).filter_by(id=item_id, ).one()
     except exc.SQLAlchemyError:
         return None
 
@@ -500,10 +499,16 @@ def get_userid(email):
         return None
 
 
-def is_authorized(category_id):
+def is_authorized_to_modify_category(category_id):
     category = get_category(category_id)
     logged_in_user_id = get_userid(login_session.get('email'))
     return category.user_id == logged_in_user_id
+
+
+def is_authorized_to_modify_item(item_id):
+    item = get_item(item_id)
+    logged_in_user_id = get_userid(login_session.get('email'))
+    return item.user_id == logged_in_user_id
 
 
 if __name__ == '__main__':
