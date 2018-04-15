@@ -7,7 +7,7 @@
             {% for category in categories %}
             <a class="category" data-id={{category.id}} href="#">{{category.name}}</a> {% endfor %}
         </div>
-        <a class="category_buttons button" href="{{url_for('create_category')}}">Create</a>
+        <a class="create_category_button button" href="{{url_for('create_category')}}">Create</a>
     </aside>
 
     <section class="category-details flex-column">
@@ -21,7 +21,7 @@
             <a href="{{url_for('show_category_item', category_id=item.category.id, item_id=item.id)}}">{{item.name}} <i>({{item.category.name}})</i></a> {% endfor %}{% endif %}
         </div>
         <div class="item-per-category"></div>
-        <div class="category_buttons modify_item_buttons"></div>
+        <div class="modify_item_buttons"></div>
     </section>
 
 </div>

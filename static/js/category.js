@@ -160,7 +160,7 @@ function display_items_and_buttons(category_id) {
 function modify_item_buttons(category_id) {
     edit_category_link = `<a class="button" href="/categories/${category_id}/edit">Edit</a>`;
     delete_category_link = `<a class="button" data-category-id="${category_id}" data-popup-open="delete-popup" data-type="category">Delete</a>`;
-    create_item_link = `<a class="button" href="/categories/${category_id}/items/create/">Create Item</a>`;
+    create_item_link = `<a class="button" href="/categories/${category_id}/items/create/">Add Item</a>`;
     return `${edit_category_link} ${delete_category_link} ${create_item_link}`;
 }
 

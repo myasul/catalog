@@ -6,7 +6,7 @@
             <label for="item_name">Name:</label>
             <input id="item_name" value="{{item.name}}" name="item-name" type="text"><br><br>
             <label for="item_description">Description:</label><br><br>
-            <textarea id="item_description" rows="5" cols="72" name="item-description">{{item.description}}</textarea><br><br>
+            <textarea id="item_description" rows="5" name="item-description">{{item.description}}</textarea><br><br>
             <input class="button" type="submit" value="Edit">
             <a class="button" href="{{url_for('show_category_item', category_id=category_id, item_id=item.id)}}">Cancel</a>
         </form>
