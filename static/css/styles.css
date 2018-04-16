@@ -44,6 +44,10 @@ header {
     align-items: center;
 }
 
+.wrap {
+    flex-wrap: wrap;
+}
+
 .flex-column {
     display: flex;
     flex-direction: column;
@@ -58,7 +62,8 @@ a {
     color: black;
 }
 
-a:hover {
+a:hover,
+input[type="submit"]:hover {
     cursor: pointer;
 }
 
@@ -95,6 +100,10 @@ textarea {
     width: 100%;
 }
 
+.error-header {
+    color: red;
+}
+
 select,
 input {
     -webkit-font-family: 'Anonymous Pro', monospace;
@@ -123,12 +132,27 @@ input {
 }
 
 .category-list {
+    max-width: 300px;
+    width: 100%;
     height: 400px;
     overflow-y: auto;
 }
 
+.category {
+    min-width: 0;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
 .category-details {
     padding-left: 20px;
+    max-width: 400px;
+}
+
+.category-details-header {
+    overflow: auto;
+    min-width: 0;
+    display: inline-block;
 }
 
 .item-container {
@@ -174,6 +198,8 @@ scrollbar {
 img {
     width: 300px;
     height: 300px;
+    box-shadow: 0px 2px 6px rgba(0, 0, 0, 1);
+    border-radius: 3px;
 }
 
 .item-details-1 {
@@ -187,9 +213,7 @@ img {
 
 /* Modal */
 
-.login-popup,
-.logout-popup,
-.delete-popup {
+[class$="-popup"] {
     width: 100%;
     height: 100%;
     display: none;
@@ -219,6 +243,9 @@ img {
     .categories {
         width: 200px;
     }
+    .category-details {
+        width: 300px;
+    }
     .item-container {
         padding-left: 10px;
         padding-right: 10px;
@@ -242,6 +269,9 @@ img {
     .categories {
         width: 180px;
         padding-left: 10px;
+    }
+    .category-details {
+        width: 280px;
     }
     .item-container {
         padding-left: 10px;
@@ -278,6 +308,9 @@ img {
     .categories {
         width: 150px;
         padding-left: 10px;
+    }
+    .category-details {
+        width: 160px;
     }
     .item-container {
         padding-left: 10px;

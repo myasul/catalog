@@ -2,11 +2,11 @@
 <div class="category-container" data-logged-in={{logged_in}}>
     <section class="item-container">
         <h2>Add Category Item <i>({{category.name}})</i></h2>
-        <form method="post" action="{{url_for('create_category_item', category_id=category.id)}}" enctype="multipart/form-data">
+        <form method="post" id="create_or_edit_category_item" action="{{url_for('create_category_item', category_id=category.id)}}" enctype="multipart/form-data">
             <label for="item-name">Name:</label>
-            <input type="text" id="item-name" name="item-name"><br><br>
+            <input type="text" id="item-name" name="item-name" maxlength="80"><br><br>
             <label for="item-description">Description:</label><br><br>
-            <textarea rows="5" name="item-description" id="item-description"></textarea><br><br>
+            <textarea rows="5" name="item-description" id="item-description" maxlength="1000"></textarea><br><br>
             <label for="item-image">Upload image:</label>
             <input type=file name="item-image" id="item-image"><br><br>
             <input class="button" type="submit" value="Create">
@@ -14,4 +14,4 @@
         </form>
     </section>
 </div>
-{% include "footer.html" %}{% endblock %}
+{% include "footer.html" %}{% endblock %}s

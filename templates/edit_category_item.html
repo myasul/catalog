@@ -2,11 +2,11 @@
 <div class="category-container" data-logged-in={{logged_in}}>
     <section class="item-container">
         <h2>{{item.name}}</h2>
-        <form method="post" enctype="multipart/form-data">
+        <form method="post" id="create_or_edit_category_item" enctype="multipart/form-data">
             <label for="item_name">Name:</label>
-            <input id="item_name" value="{{item.name}}" name="item-name" type="text"><br><br>
+            <input id="item_name" value="{{item.name}}" name="item-name" type="text" maxlength="80"><br><br>
             <label for="item_description">Description:</label><br><br>
-            <textarea id="item_description" rows="5" name="item-description">{{item.description}}</textarea><br><br>
+            <textarea id="item_description" rows="5" name="item-description" maxlength="1000">{{item.description}}</textarea><br><br>
             <label for="item-category">Category List:</label>
             <select name="item-category" id="item-category">
                 {% for category in categories %}

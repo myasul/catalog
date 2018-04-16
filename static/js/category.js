@@ -208,3 +208,52 @@ function request_item_count(category_id) {
     });
     return item_count;
 };
+
+/* Validation functions for creating and modifying categories and items */
+error_header_for_fields = "The following fields are required:<br><br>";
+
+$("#create-category").submit(function() {
+    error = "";
+    name_limit = 80;
+
+    if (!has_value("category-name")) {
+        error += error_header_for_fields;
+        error += "* Category name<br>";
+        display_error(error);
+        return false;
+    }
+
+    return true;
+})
+
+$("#create_or_edit_category_item").submit(function() {
+    error = ""
+
+    if (!has_value("item-name")) {
+        error += "* Item name<br>";
+    }
+
+    if (!has_value("item-description")) {
+        error += "* Item description<br>";
+    }
+
+    if (error) {
+        error = error_header_for_fields + error;
+        display_error(error);
+        return false;
+    }
+
+    return true;
+})
+
+function has_value(id) {
+    if ($(`#${id}`).val().length) {
+        return true;
+    }
+    return false;
+}
+
+function display_error(error) {
+    $(".error-message").html(error);
+    $(`[data-popup="error-popup"]`).fadeIn(350);
+}

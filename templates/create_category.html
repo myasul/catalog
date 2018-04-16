@@ -2,8 +2,9 @@
 <div class="category-container" data-logged-in={{logged_in}}>
     <section class="item-container">
         <h2>Create Category</h2>
-        <form action="{{url_for( 'create_category')}}" method="post">
-            <input type="text" name="category-name" maxlength="80">
+        <form action="{{url_for( 'create_category')}}" method="post" id="create-category">
+            <label for>Category Name:</label><br><br>
+            <input id="category-name" type="text" name="category-name" maxlength="80">
             <br><br>
             <input class="button" type="submit" value="Create">
             <a class="button" href="{{url_for('show_main')}}">Cancel</a>

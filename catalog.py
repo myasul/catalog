@@ -235,7 +235,8 @@ def show_main(category_id=0):
             items=items,
             category_id=category_id,
             category_name=category_name,
-            logged_in=is_logged_in())
+            logged_in=is_logged_in(),
+            show_latest_items=show_latest_items)
     return render_template(
         'categories.html',
         categories=categories,
