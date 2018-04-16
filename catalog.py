@@ -1,5 +1,7 @@
 #!usr/bin/env python3
 
+import os
+
 # Imports for Client-Server functionality
 from flask import Flask, render_template, request, redirect, jsonify, url_for, flash
 
@@ -37,6 +39,11 @@ read = partial(pandas.read_sql, con=engine)
 
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
+
+# Upload folder location
+UPLOAD_FOLDER = os.path.dirname('static/images/uploads/')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+DEFAULT_IMAGE = 'catalog.svg'
 
 
 # TODO - Read more about decorator and try to abstract this code to make it
@@ -322,11 +329,20 @@ def create_category_item(category_id):
     if request.method == 'POST':
         user_id = get_userid(login_session['email'])
         if request.form['item-name'] and request.form['item-description']:
+            if 'item-image' in request.files:
+                file = request.files['item-image']
+                filename = file.filename
+                f = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+                file.save(f)
+            else:
+                filename = DEFAULT_IMAGE
+
             new_item = Item(
                 name=request.form['item-name'],
                 description=request.form['item-description'],
                 category_id=category_id,
-                user_id=user_id)
+                user_id=user_id,
+                image=filename)
             session.add(new_item)
             session.commit()
             return redirect(url_for('show_main', category_id=category_id))
@@ -350,6 +366,13 @@ def edit_category_item(category_id, item_id):
             item.description = request.form['item-description']
         if request.form['item-category']:
             item.category_id = request.form['item-category']
+        print(request.files)
+        if 'item-image' in request.files:
+            file = request.files['item-image']
+            item.image = file.filename
+            f = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+            file.save(f)
+
         session.add(item)
         session.commit()
         return redirect(

@@ -95,7 +95,8 @@ textarea {
     width: 100%;
 }
 
-select {
+select,
+input {
     -webkit-font-family: 'Anonymous Pro', monospace;
     font-family: 'Anonymous Pro', monospace;
     -webkit-font-size: 1em;
