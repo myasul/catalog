@@ -158,9 +158,9 @@ function load_items_oncancel() {
 
 function display_items_and_buttons(category_id) {
     $(".item-per-category").html(request_category_items(category_id));
-    $(".modify_item_buttons").empty();
+    $(".modify-item-buttons").empty();
     if (is_authorized(category_id)) {
-        $(".modify_item_buttons").html(modify_item_buttons(category_id));
+        $(".modify-item-buttons").html(modify_item_buttons(category_id));
     }
 };
 

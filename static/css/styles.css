@@ -14,7 +14,7 @@ header {
     height: 100px;
 }
 
-.header_container {
+.header-container {
     margin: 0 auto;
     padding-top: 10px;
     max-width: 800px;
@@ -23,7 +23,7 @@ header {
     flex-wrap: wrap;
 }
 
-.header_container a {
+.header-container a {
     color: white !important;
 }
 
@@ -67,13 +67,13 @@ input[type="submit"]:hover {
     cursor: pointer;
 }
 
-.modify_item_buttons {
+.modify-item-buttons {
     padding-bottom: 8px;
     margin-top: auto;
     align-self: flex-start;
 }
 
-.create_category_button {
+.create-category-button {
     margin-top: 13px;
     align-self: flex-start;
 }
@@ -263,19 +263,19 @@ img {
         padding-left: 10px;
         padding-right: 10px;
     }
-    .header_container {
+    .header-container {
         max-width: 600px;
     }
     img {
         width: 250px;
         height: 250px;
     }
-    .category_name {
+    .category-name {
         width: 50%;
     }
 }
 
-@media screen and (max-width:710px) {
+category-name @media screen and (max-width:710px) {
     body {
         font-size: 0.9em;
     }
@@ -293,7 +293,7 @@ img {
         padding-left: 10px;
         padding-right: 10px;
     }
-    .header_container {
+    .header-container {
         max-width: 500px;
     }
     .button {
@@ -312,7 +312,7 @@ img {
     .item-description {
         height: 145px;
     }
-    .category_name {
+    .category-name {
         width: 40%;
     }
 }
@@ -335,17 +335,17 @@ img {
         padding-left: 10px;
         padding-right: 10px;
     }
-    .header_container {
+    .header-container {
         max-width: 350px;
     }
     header {
         max-height: 80px;
     }
-    .modify_item_buttons {
+    .modify-item-buttons {
         display: flex;
         flex-direction: column;
     }
-    .modify_item_buttons a {
+    .modify-item-buttons a {
         margin-top: 2px;
     }
     .category-details {
@@ -355,7 +355,7 @@ img {
         width: 210px;
         height: 210px;
     }
-    .category_name {
+    .category-name {
         width: 30%;
     }
 }
@@ -372,7 +372,7 @@ img {
         width: 100px;
         padding-left: 5px;
     }
-    .header_container {
+    .header-container {
         max-width: 250px;
     }
     .category-details {
