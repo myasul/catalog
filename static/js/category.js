@@ -6,6 +6,16 @@ $(window).ready(function() {
     } else {
         $(".login").append(`<a data-popup-open="login-popup">Login</a>`);
     }
+    if ($(".category-container").find("i.category-name")) {
+        limit = check_category_name_limit();
+
+        all_category_names = $(".category-container").find("i.category-name");
+        $.each(all_category_names, function() {
+            if ($(this).text().length <= limit) {
+                $(this).css("display", "inline");
+            }
+        });
+    }
 });
 
 /* Controllers of Login Modal */
@@ -128,7 +138,7 @@ $(".delete").click(function() {
     });
 })
 
-$(".category").click(function() {
+$(".category").on('click', function() {
     // Would return all of the items of the clicked category 
     // which will be displayed in the webpage.
     // This would also add delete and edit button for that category.
@@ -148,12 +158,9 @@ function load_items_oncancel() {
 
 function display_items_and_buttons(category_id) {
     $(".item-per-category").html(request_category_items(category_id));
-    if (is_authorized(category_id) && !$(".modify_item_buttons").html().length) {
+    $(".modify_item_buttons").empty();
+    if (is_authorized(category_id)) {
         $(".modify_item_buttons").html(modify_item_buttons(category_id));
-    } else if (!is_authorized(category_id)) {
-        $(".modify_item_buttons").empty();
-    } else {
-        //do nothing
     }
 };
 
@@ -208,6 +215,18 @@ function request_item_count(category_id) {
     });
     return item_count;
 };
+
+function check_category_name_limit() {
+    if ($(".category-container").hasClass("main")) {
+        return 23;
+    }
+
+    if ($(".category-container").hasClass("create-item")) {
+        return 29;
+    }
+
+    return 0;
+}
 
 /* Validation functions for creating and modifying categories and items */
 error_header_for_fields = "The following fields are required:<br><br>";

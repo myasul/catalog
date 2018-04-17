@@ -1,6 +1,6 @@
 {% extends "main.html" %} {% block content %} {% include "header.html" %} {% if category_id != 0 %}
 <iframe class="load-category-details" onload="load_items_oncancel()" data-category-name={{category_name}} data-category-id={{category_id}} src="#"></iframe>{% endif %}
-<div class="category-container flex" data-logged-in={{logged_in}}>
+<div class="category-container flex main" data-logged-in={{logged_in}}>
     <aside class="categories flex-column">
         <h2><a href="{{url_for('show_main')}}">Categories</a></h2>
         <div class="category-list flex-column">
@@ -17,7 +17,7 @@
         {% endif %}
         <div class="latest-item-list flex-column">
             {% if category_id == 0 %} {% for item in items%}
-            <a href="{{url_for('show_category_item', category_id=item.category.id, item_id=item.id)}}">{{item.name}} <i>({{item.category.name}})</i></a> {% endfor %}{% endif %}
+            <a href="{{url_for('show_category_item', category_id=item.category.id, item_id=item.id)}}">{{item.name}} (<i class="category-name">{{item.category.name}}</i>)</a> {% endfor %}{% endif %}
         </div>
         <div class="item-per-category"></div>
     </section>

@@ -1,7 +1,7 @@
 {% extends "main.html" %} {% block content %} {% include "header.html" %}
-<div class="category-container" data-logged-in={{logged_in}}>
+<div class="category-container create-item" data-logged-in={{logged_in}}>
     <section class="item-container">
-        <h2>Add Category Item <i>({{category.name}})</i></h2>
+        <h2>Add Category Item (<i class="category-name">{{category.name}}</i>)</h2>
         <form method="post" id="create_or_edit_category_item" action="{{url_for('create_category_item', category_id=category.id)}}" enctype="multipart/form-data">
             <label for="item-name">Name:</label>
             <input type="text" id="item-name" name="item-name" maxlength="80"><br><br>

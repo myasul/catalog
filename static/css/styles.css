@@ -210,6 +210,19 @@ img {
     align-self: flex-start;
 }
 
+.category-name {
+    display: inline-block;
+    width: 60%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 0.75em;
+}
+
+.item-container h2 {
+    display: inline-block;
+    width: 100%;
+}
+
 
 /* Modal */
 
@@ -257,6 +270,9 @@ img {
         width: 250px;
         height: 250px;
     }
+    .category_name {
+        width: 50%;
+    }
 }
 
 @media screen and (max-width:710px) {
@@ -295,6 +311,9 @@ img {
     }
     .item-description {
         height: 145px;
+    }
+    .category_name {
+        width: 40%;
     }
 }
 
@@ -336,6 +355,9 @@ img {
         width: 210px;
         height: 210px;
     }
+    .category_name {
+        width: 30%;
+    }
 }
 
 @media screen and (max-width:360px) {
@@ -357,3 +379,5 @@ img {
         padding-left: 5px;
     }
 }
+
+;
