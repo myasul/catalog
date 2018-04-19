@@ -1,14 +1,14 @@
 #!usr/bin/env python3
 
 import os
+from functools import wraps
+import json
 
 # Imports for Client-Server functionality
 from flask import Flask, render_template, request, redirect, jsonify, url_for, flash
 
 # Imports for CRUD functionality
-from sqlalchemy import create_engine, asc, func, select, MetaData, exc
-from sqlalchemy.orm import sessionmaker
-from database_setup import Base, User, Category, Item
+from database_helper import *
 
 # Imports for OAuth2 functionality
 from oauth2client.client import flow_from_clientsecrets, FlowExchangeError
@@ -17,28 +17,10 @@ import random
 import string
 import requests
 
-# Imports to implement nested JSON
-import pandas
-from functools import partial, wraps
-import json
-
 app = Flask(__name__)
 
 CLIENT_ID = json.loads(open('client_secret_google.json',
                             'r').read())['web']['client_id']
-
-# Connect to the database and create a database session
-engine = create_engine('postgresql:///catalog')
-Base.metadata.bind = engine
-metadata = MetaData(bind=engine)
-metadata.reflect()
-tables = metadata.tables
-category_table = tables['categories']
-item_table = tables['items']
-read = partial(pandas.read_sql, con=engine)
-
-DBSession = sessionmaker(bind=engine)
-session = DBSession()
 
 # Upload folder location
 UPLOAD_FOLDER = os.path.dirname('static/images/uploads/')
@@ -46,8 +28,6 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 DEFAULT_IMAGE = 'catalog.svg'
 
 
-# TODO - Read more about decorator and try to abstract this code to make it
-# look cleaner.
 # Decorator for anonymous users trying to access restricted pages
 def login_required(f):
     @wraps(f)
@@ -60,13 +40,10 @@ def login_required(f):
 
 
 # JSON APIs to view Category information
-# TODO
 @app.route('/api/categories')
 def show_all_categories_JSON():
-    all_categories = {}
     frame = get_all_categories_JSON()
-    all_categories['Categories'] = frame.to_dict('records')
-    return jsonify(all_categories)
+    return jsonify(build_all_category_JSON(frame))
 
 
 @app.route('/api/categories/<int:category_id>')
@@ -101,7 +78,6 @@ def generate_token():
     return login_session['state']
 
 
-# TODO - REFACTOR!
 # Provide login functionality using Google's OAuth2
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
@@ -120,62 +96,24 @@ def gconnect():
             'client_secret_google.json', scope='')
         oauth_flow.redirect_uri = 'http://localhost:5000'
         credentials = oauth_flow.step2_exchange(code)
+        print("1")
     except FlowExchangeError:
         response = make_response(
             json.dumps('Failed to upgrade the authorization code'), 401)
         response.headers['Content-type'] = 'application/json'
         return response
 
-    # Check that the access token is valid
-    token_url = 'https://www.googleapis.com/oauth2/v1/tokeninfo'
-    params = {'access_token': credentials.access_token}
-    content = requests.get(token_url, params=params)
-    result = content.json()
-    if result.get('error'):
-        response = make_response(json.dumps(result.get('error')), 500)
-        response.headers['Content-Type'] = 'application/json'
-        return response
-
-    # Verify that the access token is valid for the intended user
     gplus_id = credentials.id_token['sub']
-    if result['user_id'] != gplus_id:
-        response = make_response(
-            json.dumps("Token's user ID doesn't match giver user ID"), 401)
-        response.headers['Content-Type'] = 'application/json'
+    response = validate_access_token(credentials)
+    if response is not None:
         return response
 
-    # Verify that the access token is valid for this app
-    if result['issued_to'] != CLIENT_ID:
-        response = make_response(
-            json.dumps("Token's client ID does not match app's"), 401)
-        response.headers['Content-Type'] = 'application/json'
-        return response
-
-    stored_access_token = login_session.get('access_token')
-    stored_gplus_id = login_session.get('gplus_id')
-    if stored_access_token is not None and gplus_id == stored_access_token:
+    if is_connected(gplus_id):
         response = make_response(json.dumps("User is already connected."), 200)
         response.headers['Content-type'] = 'application/json'
         return response
 
-    login_session['access_token'] = credentials.access_token
-    login_session['gplus_id'] = gplus_id
-
-    # Get user info
-    userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
-    params = {'access_token': credentials.access_token, 'alt': 'json'}
-    result = requests.get(userinfo_url, params=params)
-    data = result.json()
-
-    login_session['username'] = data['name']
-    login_session['image'] = data['picture']
-    login_session['email'] = data['email']
-
-    # Check if user already exists. If not, add it in the database
-    user_id = get_userid(login_session['email'])
-    if not user_id:
-        user_id = create_user(login_session)
-    login_session['user_id'] = user_id
+    populate_login_session(credentials.access_token, gplus_id)
 
     response = make_response(json.dumps("User successfully logged in!"), 200)
     response.headers['Content-type'] = 'application/json'
@@ -195,12 +133,7 @@ def gdisconnect():
         params={'token': login_session.get('access_token', '')},
         headers={'content-type': 'application/x-www-form-urlencoded'})
     if response.status_code == 200:
-        del login_session['access_token']
-        del login_session['gplus_id']
-        del login_session['username']
-        del login_session['email']
-        del login_session['image']
-        del login_session['user_id']
+        clear_login_session()
         response = make_response(json.dumps('Successfully disconnected'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
@@ -210,7 +143,7 @@ def gdisconnect():
         return response
 
 
-# Show all categories
+# Displays the home page
 @app.route('/')
 @app.route('/categories')
 @app.route('/categories/')
@@ -247,7 +180,6 @@ def show_main(category_id=0):
         show_latest_items=show_latest_items)
 
 
-# Create a new category
 @app.route('/categories/create/', methods=['GET', 'POST'])
 @login_required
 def create_category():
@@ -262,7 +194,6 @@ def create_category():
         return render_template('create_category.html', logged_in=True)
 
 
-# Edit a category
 @app.route('/categories/<int:category_id>/edit/', methods=['GET', 'POST'])
 @login_required
 def edit_category(category_id):
@@ -278,7 +209,6 @@ def edit_category(category_id):
             'edit_category.html', category=category_to_edit, logged_in=True)
 
 
-# Delete a category
 @app.route('/categories/<int:category_id>/delete/', methods=['GET', 'POST'])
 @login_required
 def delete_category(category_id):
@@ -301,7 +231,7 @@ def delete_category(category_id):
             logged_in=True)
 
 
-# Show a specific item
+# Displays a specific item
 @app.route(
     '/categories/<int:category_id>/items/<int:item_id>/',
     methods=['GET', 'POST'])
@@ -321,7 +251,6 @@ def show_category_item(category_id, item_id):
         logged_in=is_logged_in())
 
 
-# Create a specific item
 @app.route(
     '/categories/<int:category_id>/items/create/', methods=['GET', 'POST'])
 @login_required
@@ -352,7 +281,6 @@ def create_category_item(category_id):
             'create_category_item.html', category=category, logged_in=True)
 
 
-# Edit category item
 @app.route(
     '/categories/<int:category_id>/items/<int:item_id>/edit/',
     methods=['GET', 'POST'])
@@ -367,7 +295,7 @@ def edit_category_item(category_id, item_id):
             item.description = request.form['item-description']
         if request.form['item-category']:
             item.category_id = request.form['item-category']
-        print(request.files)
+
         if 'item-image' in request.files:
             file = request.files['item-image']
             item.image = file.filename
@@ -390,7 +318,6 @@ def edit_category_item(category_id, item_id):
             logged_in=True)
 
 
-# Delete category item
 @app.route(
     '/categories/<int:category_id>/items/<int:item_id>/delete/',
     methods=['GET', 'POST'])
@@ -409,6 +336,32 @@ def delete_category_item(category_id, item_id):
             logged_in=True)
 
 
+# Functions for building JSON API
+
+
+def build_all_category_JSON(frame):
+    all_categories = {}
+    all_categories['Categories'] = frame.to_dict('records')
+    for category in all_categories['Categories']:
+        item_count = len(category['items'])
+        first_item = category['items'][0]
+        if item_count == 1 and first_item['id'] == None:
+            del category['items']
+
+    return all_categories
+
+
+# Functions for logging in using Google OAuth2
+
+
+def is_connected(gplus_id):
+    stored_access_token = login_session.get('access_token')
+    stored_gplus_id = login_session.get('gplus_id')
+    if stored_access_token is not None and gplus_id == stored_access_token:
+        return True
+    return False
+
+
 def is_logged_in():
     user = login_session.get("username", "")
     if user:
@@ -416,101 +369,72 @@ def is_logged_in():
     return False
 
 
-# TODO - Check if you can make a separate file for the helper functions
-# Helper functions to fetch data from the database
-def get_latest_items(limit=10):
-    try:
-        return session.query(Item).order_by(
-            Item.date_created.desc()).limit(limit)
-    except exc.SQLAlchemyError:
-        return None
+def populate_login_session(access_token, gplus_id):
+    print("3")
+    login_session['access_token'] = access_token
+    login_session['gplus_id'] = gplus_id
+    user_details = get_google_user_details(access_token)
+
+    login_session['username'] = user_details['name']
+    login_session['image'] = user_details['picture']
+    login_session['email'] = user_details['email']
+    login_session['user_id'] = get_or_create_user(login_session)
 
 
-def get_item(item_id):
-    try:
-        return session.query(Item).filter_by(id=item_id, ).one()
-    except exc.SQLAlchemyError:
-        return None
+def get_google_user_details(access_token):
+    userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
+    params = {'access_token': access_token, 'alt': 'json'}
+    result = requests.get(userinfo_url, params=params)
+    return result.json()
 
 
-def get_category(category_id):
-    try:
-        return session.query(Category).filter_by(id=category_id).one()
-    except exc.SQLAlchemyError:
-        return None
+def get_or_create_user(login_session):
+    user_id = get_userid(login_session['email'])
+    if not user_id:
+        user_id = create_user(login_session)
+    return user_id
 
 
-def get_all_items(category_id):
-    try:
-        category = session.query(Category).filter_by(id=category_id).one()
-        return session.query(Item).filter_by(category_id=category.id).all()
-    except exc.SQLAlchemyError:
-        return None
+def clear_login_session():
+    del login_session['access_token']
+    del login_session['gplus_id']
+    del login_session['username']
+    del login_session['email']
+    del login_session['image']
+    del login_session['user_id']
 
 
-def get_item_count(category_id):
-    try:
-        count = session.query(func.count(
-            Item.id).label('count')).filter_by(category_id=category_id).one()
-        return count[0]
-    except exc.SQLAlchemyError:
-        return 0
+def validate_access_token(credentials):
+    response = None
+    print("2")
+    # Check that the access token is valid
+    token_url = 'https://www.googleapis.com/oauth2/v1/tokeninfo'
+    params = {'access_token': credentials.access_token}
+    content = requests.get(token_url, params=params)
+    result = content.json()
+    if result.get('error'):
+        response = make_response(json.dumps(result.get('error')), 500)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    # Verify that the access token is valid for the intended user
+    if result['user_id'] != credentials.id_token['sub']:
+        response = make_response(
+            json.dumps("Token's user ID doesn't match giver user ID"), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    # Verify that the access token is valid for this app
+    if result['issued_to'] != CLIENT_ID:
+        response = make_response(
+            json.dumps("Token's client ID does not match app's"), 401)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    return response
 
 
-def get_all_categories():
-    return session.query(Category).order_by(asc(Category.name))
-
-
-def get_all_categories_JSON():
-
-    # TODO
-    # - implement JSON API using session.query
-    # - make sure that only selected columns are displayed
-    #all_items = session.query(Item.category_id,
-    #                          json_agg(Item).label('items')).group_by(
-    #                              Item.category_id).cte(name="all_items")
-    #
-    #all_categories = session.query(Category, all_items).filter(
-    #    Category.id == all_items.c.category_id).cte(name="all_categories")
-    #
-    #all_categories_2 = session.query(all_categories).options(
-    #    Load(all_categories).load_only("id", "name"),
-    #    Load(all_items).defer("category_id"))
-
-    query = (select([
-        category_table.c.id, category_table.c.name,
-        func.json_agg(
-            func.json_build_object('id', item_table.c.id, 'name',
-                                   item_table.c.name, 'description',
-                                   item_table.c.description, 'image',
-                                   item_table.c.image)).label('items')
-    ]).select_from(category_table.outerjoin(item_table)).group_by(
-        category_table.c.id))
-
-    return read(query)
-
-
-def create_user(login_session):
-    try:
-        new_user = User(
-            name=login_session['username'],
-            email=login_session['email'],
-            image=login_session['image'])
-        session.add(new_user)
-        session.commit()
-        user = session.query(User).filter_by(
-            email=login_session['email']).one()
-        return user.id
-    except exc.SQLAlchemyError:
-        return None
-
-
-def get_userid(email):
-    try:
-        user = session.query(User).filter_by(email=email).one()
-        return user.id
-    except exc.SQLAlchemyError:
-        return None
+# Functions to validate authorization
 
 
 def is_authorized_to_modify_category(category_id):
