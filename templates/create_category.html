@@ -1,5 +1,5 @@
-{% extends "main.html" %} {% block content %} {% include "header.html" %}
-<div class="category-container" data-logged-in={{logged_in}}>
+<!DOCTYPE html>{% extends "main.html" %} {% block content %} {% include "header.html" %}
+<div class="category-container" data-logged-in="{{logged_in}}">
     <section class="item-container">
         <h2>Create Category</h2>
         <form action="{{url_for( 'create_category')}}" method="post" id="create-category">

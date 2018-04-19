@@ -96,21 +96,11 @@ input[type="submit"]:hover {
 }
 
 textarea {
-    resize: none;
     width: 100%;
 }
 
 .error-header {
     color: red;
-}
-
-select,
-input {
-    -webkit-font-family: 'Anonymous Pro', monospace;
-    font-family: 'Anonymous Pro', monospace;
-    -webkit-font-size: 1em;
-    font-size: 1em;
-    outline: none;
 }
 
 .category-container {
@@ -170,11 +160,17 @@ aside {
     height: 100%;
 }
 
+textarea:focus,
+input:focus,
+select:focus {
+    outline: none;
+}
+
+select,
 textarea,
 input {
     font-family: 'Anonymous Pro', monospace;
     font-size: 1em;
-    outline: none;
     resize: none;
     border: 1px solid black;
     border-radius: 5px;
@@ -198,7 +194,7 @@ scrollbar {
 img {
     width: 300px;
     height: 300px;
-    box-shadow: 0px 2px 6px rgba(0, 0, 0, 1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 1);
     border-radius: 3px;
 }
 
@@ -218,6 +214,19 @@ img {
     line-height: 0.75em;
 }
 
+select option {
+    display: inline-block;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+select {
+    width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .item-container h2 {
     display: inline-block;
     width: 100%;
@@ -231,8 +240,8 @@ img {
     height: 100%;
     display: none;
     position: fixed;
-    top: 0px;
-    left: 0px;
+    top: 0;
+    left: 0;
     background: rgba(0, 0, 0, 0.75);
 }
 
@@ -244,7 +253,7 @@ img {
     top: 30%;
     left: 50%;
     transform: translate(-50%, -50%);
-    box-shadow: 0px 2px 6px rgba(0, 0, 0, 1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 1);
     border-radius: 3px;
     background: #fff;
 }
@@ -275,7 +284,7 @@ img {
     }
 }
 
-category-name @media screen and (max-width:710px) {
+@media screen and (max-width:710px) {
     body {
         font-size: 0.9em;
     }
@@ -379,5 +388,3 @@ category-name @media screen and (max-width:710px) {
         padding-left: 5px;
     }
 }
-
-;

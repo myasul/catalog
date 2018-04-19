@@ -1,6 +1,6 @@
-{% extends "main.html" %}{% block content %}{% include "header.html" %}
-<div class="category-container" data-logged-in={{logged_in}}>
-    <section class="item-details">
+<!DOCTYPE html> {% extends "main.html" %}{% block content %}{% include "header.html" %}
+<div class="category-container" data-logged-in="{{logged_in}}">
+    <section class="item-container">
         <h2>Category</h2>
         <form method="post">
             <input type="text" value="{{category.name}}" name="category-name">
