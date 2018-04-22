@@ -138,14 +138,13 @@ $(".delete").click(function() {
     });
 })
 
-$(".category").on('click', function() {
+$(".category a").on('click', function() {
     // Would return all of the items of the clicked category 
     // which will be displayed in the webpage.
     // This would also add delete and edit button for that category.
 
     $(".category-details-header").html($(this).html());
     category_id = $(this).attr("data-id");
-
     $(".latest-item-list").empty();
     display_items_and_buttons(category_id);
 });
@@ -178,7 +177,6 @@ function is_authorized(category_id) {
         url: `/api/categories/authorized/${category_id}`,
         async: false,
         success: function(result) {
-            console.log(result)
             authorized = result;
         }
     });
@@ -192,8 +190,8 @@ function request_category_items(category_id) {
         async: false,
         success: function(result) {
             item_list = "";
-
-            $.each(result["Category_Items"], function() {
+            category_name = (Object.keys(result))
+            $.each(result[category_name], function() {
                 name = this["name"];
                 item_id = this["id"];
                 link = `/categories/${category_id}/items/${item_id}`

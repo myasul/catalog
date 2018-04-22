@@ -269,6 +269,9 @@ select {
     .category-details {
         width: 300px;
     }
+    .category a {
+        width: 180px;
+    }
     .item-container {
         padding-left: 10px;
         padding-right: 10px;
@@ -295,6 +298,9 @@ select {
     .categories {
         width: 180px;
         padding-left: 10px;
+    }
+    .category a {
+        width: 160px;
     }
     .category-details {
         width: 280px;
@@ -337,6 +343,9 @@ select {
     .categories {
         width: 150px;
         padding-left: 10px;
+    }
+    .category a {
+        width: 130px;
     }
     .category-details {
         width: 160px;
@@ -381,6 +390,9 @@ select {
     .categories {
         width: 100px;
         padding-left: 5px;
+    }
+    .category a {
+        width: 90px;
     }
     .header-container {
         max-width: 250px;
