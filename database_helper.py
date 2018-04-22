@@ -31,9 +31,13 @@ def get_latest_items(limit=10):
         return None
 
 
-def get_item(item_id):
+def get_item(item_id, category_id=None):
     try:
-        return session.query(Item).filter_by(id=item_id, ).one()
+        if category_id is None:
+            return session.query(Item).filter_by(id=item_id, ).one()
+        else:
+            return session.query(Item).filter_by(
+                id=item_id, category_id=category_id).one()
     except exc.SQLAlchemyError:
         return None
 

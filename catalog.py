@@ -1,8 +1,9 @@
 #!usr/bin/env python3
 
 import os
-from functools import wraps
 import json
+from functools import wraps
+from collections import defaultdict
 
 # Imports for Client-Server functionality
 from flask import Flask, render_template, request, redirect, jsonify, url_for, flash
@@ -48,14 +49,12 @@ def show_all_categories_JSON():
 
 @app.route('/api/categories/<int:category_id>')
 def show_category_items_JSON(category_id):
-    items = get_all_items(category_id)
-    return jsonify(Category_Items=[item.serialize for item in items])
+    return jsonify(build_category_JSON(category_id))
 
 
 @app.route('/api/categories/<int:category_id>/<int:item_id>')
-def show_category_item_JSON():
-    item = get_item(item_id)
-    return jsonify(Category_Item[item.serialize])
+def show_category_item_JSON(category_id, item_id):
+    return jsonify(build_category_JSON(category_id, item_id))
 
 
 @app.route('/api/categories/authorized/<int:category_id>')
@@ -337,6 +336,26 @@ def delete_category_item(category_id, item_id):
 
 
 # Functions for building JSON API
+def build_category_JSON(category_id, item_id=None):
+    category = get_category(category_id)
+
+    if category is not None:
+        category_json = defaultdict(list)
+        if item_id is None:
+            items = get_all_items(category_id)
+        else:
+            items = get_item(category_id, item_id)
+
+        if items is None:
+            category_json[category.name].append("Item not found.")
+        elif len(items) == 0:
+            category_json[category.name]
+        else:
+            for item in items:
+                category_json[category.name].append(item.serialize)
+    else:
+        category_json = "Category not found"
+    return category_json
 
 
 def build_all_category_JSON(frame):
