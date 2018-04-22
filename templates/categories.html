@@ -5,7 +5,10 @@
         <h2><a href="{{url_for('show_main')}}">Categories</a></h2>
         <div class="category-list flex-column">
             {% for category in categories %}
-            <a class="category" data-id="{{category.id}}" href="#">{{category.name}}</a> {% endfor %}
+            <div class="category">
+                <a data-id="{{category.id}}" href="#">{{category.name}}</a>
+            </div>
+            {% endfor %}
         </div>
         <a class="create-category-button button" href="{{url_for('create_category')}}">Create</a>
     </aside>

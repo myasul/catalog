@@ -128,10 +128,11 @@ textarea {
     overflow-y: auto;
 }
 
-.category {
-    min-width: 0;
-    text-overflow: ellipsis;
+.category a {
+    display: inline-block;
+    width: 250px;
     overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .category-details {
