@@ -33,16 +33,7 @@ $(".category-container").on('click', '[data-popup-open]', function(event) {
     item_id = $(this).attr("data-item-id");
     data_type = $(this).attr("data-type");
 
-    error_msg = "Are you sure you want to delete this item?";
-    if (data_type == "category") {
-        error_msg = "<p>Are you sure you want to delete this category?</p>";
-        item_count = request_item_count(category_id);
-        if (item_count > 0) {
-            error_msg += "<p>There are still items in this category. Deleting this category would delete the items as well.</p>"
-        }
-    }
-
-    $(".delete-message").html(error_msg);
+    $(".delete-message").html(build_delete_confirmation_message(category_id));
     $(".delete").attr("data-category-id", category_id);
     $(".delete").attr("data-item-id", item_id);
     $(".delete").attr("data-type", data_type);
@@ -149,6 +140,7 @@ $(".category a").on('click', function() {
     display_items_and_buttons(category_id);
 });
 
+// Function to load the category and items that the user last viewed.
 function load_items_oncancel() {
     category_id = $(".load-category-details").attr("data-category-id");
     $(".category-details-header").html($(".load-category-details").attr("data-category-name"));
@@ -218,11 +210,9 @@ function check_category_name_limit() {
     if ($(".category-container").hasClass("main")) {
         return 23;
     }
-
     if ($(".category-container").hasClass("create-item")) {
         return 29;
     }
-
     return 0;
 }
 
@@ -273,4 +263,16 @@ function has_value(id) {
 function display_error(error) {
     $(".error-message").html(error);
     $(`[data-popup="error-popup"]`).fadeIn(350);
+}
+
+function build_delete_confirmation_message(category_id) {
+    error_msg = "Are you sure you want to delete this item?";
+    if (data_type == "category") {
+        error_msg = "<p>Are you sure you want to delete this category?</p>";
+        item_count = request_item_count(category_id);
+        if (item_count > 0) {
+            error_msg += "<p>There are still items in this category. Deleting this category would delete the items as well.</p>";
+        }
+    }
+    return error_msg;
 }
