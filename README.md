@@ -10,6 +10,10 @@ __Pre-requisites:__
 * Install PostgreSQL. http://postgresguide.com/setup/install.html
 * Install other dependencies. Kindly the command below to install all dependencies:
   `pip install -r requirements.txt`
+* Set up Google Sign-in:
+  1. Setup Google's OAuth. Please follow the steps in the link: https://www.appypie.com/faqs/how-can-i-get-my-google-acount-client-id-and-client-secret-key
+  1. Save the client ID and client secret by downloading it as JSON file and naming it as __client_secret_google.json__. Save it under the same level as catalog.py.
+  1. Add the client ID inside footer.html. Include it in `<span class="g-signin" data-scope="openid email profile" data-clientid="insert client ID" ...> `
 
 __Deployment:__
 
