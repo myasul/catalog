@@ -2,6 +2,7 @@
 __Udacity's Full Stack Web Developer Degree Project - Item Catalog__
 
 __Description:__
+
 This application provides a list of items within a variety of categories as well as provide a user registration and authentication system. Registered users will have the ability to post, edit and delete their own items.
 
 __Pre-requisites:__
@@ -28,5 +29,12 @@ __Features:__
 * You have an option to put an image of your choice in your created items. If you did not specify any image there will be a default image that you can update later on.
 * Names are up to 80 characters long. Names with greater than 80 characters long will be truncated.
 * Description are up to 1000 characters long. Description with greater than 1000 characters long will be truncated.
+
+__JSON Endpoints:__
+
+You can use the following URLs to retrieve specific information about categories and items that you need.
+* http://localhost:5000/api/categories - This will retrieve all categories and their respective items.
+* http://localhost:5000/api/categories/insert_category_id -  This will retrieve a specific category with its respective items. e.g. http://localhost:5000/api/categories/1
+* http://localhost:5000/api/categories/insert_category_id/insert_item_id - This will retrieve a specific item under a specific category e.g. http://localhost:5000/api/1/3
 
 Enjoy using the Item Catalog website! :)
