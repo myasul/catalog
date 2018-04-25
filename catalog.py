@@ -6,7 +6,8 @@ from functools import wraps
 from collections import defaultdict
 
 # Imports for Client-Server functionality
-from flask import Flask, render_template, request, redirect, jsonify, url_for, flash
+from flask import Flask, render_template, \
+                request, redirect, jsonify, url_for, flash
 
 # Imports for CRUD functionality
 from database_helper import *
@@ -43,33 +44,51 @@ def login_required(f):
 # JSON APIs to view Category information
 @app.route('/api/categories')
 def show_all_categories_JSON():
+    """
+    Displays all categories and their respective items in JSON format.
+    """
     frame = get_all_categories_JSON()
     return jsonify(build_all_category_JSON(frame))
 
 
 @app.route('/api/categories/<int:category_id>')
 def show_category_items_JSON(category_id):
+    """
+    Displays a specific category and its respective items in JSON format.
+    """
     return jsonify(build_category_JSON(category_id))
 
 
 @app.route('/api/categories/<int:category_id>/<int:item_id>')
 def show_category_item_JSON(category_id, item_id):
+    """
+    Displays a specific item and its details in JSON format.
+    """
     return jsonify(build_category_JSON(category_id, item_id))
 
 
 @app.route('/api/categories/authorized/<int:category_id>')
 def show_authorization(category_id):
+    """
+    Returns a boolean value that would indicate if a user
+    is authorized to modify the provided category.
+    """
     return jsonify(is_authorized_to_modify_category(category_id))
 
 
 @app.route('/api/categories/item_count/<int:category_id>')
 def show_item_count(category_id):
+    """
+    Returns the number of items contained in the provided category.
+    """
     return jsonify(get_item_count(category_id))
 
 
-# Create anti-forgery token
 @app.route("/login")
 def generate_token():
+    """
+    Generates an anti-forgery token.
+    """
     state = ''.join(
         random.choice(string.ascii_uppercase + string.digits)
         for x in range(32))
@@ -77,9 +96,13 @@ def generate_token():
     return login_session['state']
 
 
-# Provide login functionality using Google's OAuth2
 @app.route('/gconnect', methods=['POST'])
 def gconnect():
+    """
+    Provides login functionality using Google's OAuth2.
+    Gathers data from Google Sign In API and
+    stores in the login_session variable.
+    """
     # Validate state token
     if request.args.get('state') != login_session['state']:
         response = make_response(json.dumps('Invalid state parameter'), 401)
@@ -90,7 +113,7 @@ def gconnect():
     code = request.data
 
     try:
-        #Upgrade the authorization code into a credentials object
+        # Upgrade the authorization code into a credentials object
         oauth_flow = flow_from_clientsecrets(
             'client_secret_google.json', scope='')
         oauth_flow.redirect_uri = 'http://localhost:5000'
@@ -122,6 +145,11 @@ def gconnect():
 # Logout user
 @app.route('/gdisconnect')
 def gdisconnect():
+    """
+    Provides logout functionality using Google's OAuth2.
+    This would revoke the user token provided by Google during login.
+    This would also clear out the login session variables.
+    """
     access_token = login_session.get('access_token', '')
     if access_token is None:
         response = make_response(json.dumps('Current user not connected'), 401)
@@ -148,6 +176,9 @@ def gdisconnect():
 @app.route('/categories/')
 @app.route('/categories/<int:category_id>')
 def show_main(category_id=0):
+    """
+    Would return all the categories and the latest added items.
+    """
     categories = get_all_categories()
     category = None
     items = None
@@ -182,6 +213,9 @@ def show_main(category_id=0):
 @app.route('/categories/create/', methods=['GET', 'POST'])
 @login_required
 def create_category():
+    """
+    Provides create category capability to a logged-in user.
+    """
     if request.method == 'POST':
         user_id = get_userid(login_session['email'])
         new_category = Category(
@@ -196,9 +230,16 @@ def create_category():
 @app.route('/categories/<int:category_id>/edit/', methods=['GET', 'POST'])
 @login_required
 def edit_category(category_id):
+    """
+    Provides edit category capability to an authorized user.
+    """
+    if not is_authorized_to_modify_category(category_id):
+        return """<script>function test(){\
+            alert('You are not authorized to modify this category.');}\
+            </script>
+            <body onload='test()''>"""
+
     category_to_edit = get_category(category_id)
-    if category_to_edit.user_id != login_session['user_id']:
-        return "<script>function myFunction() {alert('You are not authorized to edit this category. Please create your own category in order to edit.');}</script><body onload='myFunction()''>"
     if request.method == 'POST':
         if request.form['category-name']:
             category_to_edit.name = request.form['category-name']
@@ -213,10 +254,16 @@ def edit_category(category_id):
 @app.route('/categories/<int:category_id>/delete/', methods=['GET', 'POST'])
 @login_required
 def delete_category(category_id):
-    category_to_delete = get_category(category_id)
-    if category_to_delete.user_id != login_session['user_id']:
-        return "<script>function myFunction() {alert('You are not authorized to delete this category. Please create your own category in order to delete.');}</script><body onload='myFunction()''>"
+    """
+    Provides delete category capability to an authorized user.
+    """
+    if not is_authorized_to_modify_category(category_id):
+        return """<script>function test(){\
+            alert('You are not authorized to modify this category.');}\
+            </script>
+            <body onload='test()''>"""
     if request.method == 'POST':
+        category_to_delete = get_category(category_id)
         # Delete items under category first
         if get_item_count(category_id) > 0:
             items = get_all_items(category_id)
@@ -226,11 +273,6 @@ def delete_category(category_id):
         session.delete(category_to_delete)
         session.commit()
         return redirect(url_for('show_main'))
-    else:
-        return render_template(
-            'delete_category.html',
-            category=category_to_delete,
-            logged_in=True)
 
 
 # Displays a specific item
@@ -238,6 +280,9 @@ def delete_category(category_id):
     '/categories/<int:category_id>/items/<int:item_id>/',
     methods=['GET', 'POST'])
 def show_category_item(category_id, item_id):
+    """
+    Displays all category item details
+    """
     item = get_item(item_id)
     if login_session.get(
             'username') is None or not is_authorized_to_modify_item(item.id):
@@ -257,6 +302,9 @@ def show_category_item(category_id, item_id):
     '/categories/<int:category_id>/items/create/', methods=['GET', 'POST'])
 @login_required
 def create_category_item(category_id):
+    """
+    Provides create item capability to a logged-in user.
+    """
     category = get_category(category_id)
     if request.method == 'POST':
         user_id = get_userid(login_session['email'])
@@ -288,10 +336,17 @@ def create_category_item(category_id):
     methods=['GET', 'POST'])
 @login_required
 def edit_category_item(category_id, item_id):
+    """
+    Provides edit item capability to an authorized user.
+    """
+    if not is_authorized_to_modify_item(item_id):
+        return """<script>function test(){\
+            alert('You are not authorized to modify this item.');}\
+            </script>
+            <body onload='test()''>"""
+
     item = get_item(item_id)
     categories = get_all_categories()
-    if item.user_id != login_session['user_id']:
-        return "<script>function myFunction() {alert('You are not authorized to edit this item. Please create your own category in order to edit.');}</script><body onload='myFunction()''>"
     if request.method == 'POST':
         if request.form['item-name']:
             item.name = request.form['item-name']
@@ -327,20 +382,19 @@ def edit_category_item(category_id, item_id):
     methods=['GET', 'POST'])
 @login_required
 def delete_category_item(category_id, item_id):
-    item = get_item(item_id)
-    if item.user_id != login_session['user_id']:
-        return "<script>function myFunction() {alert('You are not authorized to delete this item. Please create your own category in order to delete.');}</script><body onload='myFunction()''>"
-
+    """
+    Provides edit item capability to an authorized user.
+    """
+    if not is_authorized_to_modify_item(item_id):
+        return """<script>function test(){\
+            alert('You are not authorized to modify this item.');}\
+            </script>
+            <body onload='test()''>"""
     if request.method == 'POST':
+        item = get_item(item_id)
         session.delete(item)
         session.commit()
         return redirect(url_for('show_main', category_id=category_id))
-    else:
-        return render_template(
-            'delete_category_item.html',
-            category_id=category_id,
-            item=item,
-            logged_in=True)
 
 
 # Functions for building JSON API
@@ -372,7 +426,7 @@ def build_all_category_JSON(frame):
     for category in all_categories['Categories']:
         item_count = len(category['items'])
         first_item = category['items'][0]
-        if item_count == 1 and first_item['id'] == None:
+        if item_count == 1 and first_item['id'] is None:
             del category['items']
 
     return all_categories
