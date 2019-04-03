@@ -8,7 +8,7 @@ This application provides a list of items within a variety of categories as well
 __Pre-requisites:__
 * Install Python 3. http://docs.python-guide.org/en/latest/starting/installation/
 * Install PostgreSQL. http://postgresguide.com/setup/install.html
-* Install other dependencies. Kindly the command below to install all dependencies:
+* Install other dependencies. Kindly run the command below to install all dependencies:
   `pip install -r requirements.txt`
 * Set up Google Sign-in:
   1. Setup Google's OAuth. Please follow the steps in the link: https://www.appypie.com/faqs/how-can-i-get-my-google-acount-client-id-and-client-secret-key
